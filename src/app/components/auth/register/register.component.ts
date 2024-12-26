@@ -24,7 +24,8 @@ export class RegisterComponent {
       password: ['', [Validators.required, Validators.minLength(6)]],
       birthday: ['', [Validators.required]],
       monthlyIncome: ['', [Validators.required, Validators.min(0)]],
-      collateralAvailable: ['', [Validators.required]]
+      collateralAvailable: ['', [Validators.required]],
+      customerSince: ['', [Validators.required]]
     });
   }
 
@@ -37,7 +38,7 @@ export class RegisterComponent {
         },
         error: (error) => {
           console.error('Registration failed:', error);
-          // Handle error (show message to user)
+          this.isLoading = false;
         },
         complete: () => {
           this.isLoading = false;

@@ -36,7 +36,7 @@ export class LoginComponent {
         },
         error: (error) => {
           console.error('Login failed:', error);
-          // Handle error (show message to user)
+          this.isLoading = false;
         },
         complete: () => {
           this.isLoading = false;

@@ -2,12 +2,14 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators,ReactiveFormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { User, BankAccount } from '../../interfaces/user.interface';
+import { CommonModule } from '@angular/common';
+import { ProfileService } from '../../services/profile.service';
 
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule]
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class ProfileComponent implements OnInit {
   profileForm: FormGroup;
@@ -15,8 +17,10 @@ export class ProfileComponent implements OnInit {
   bankAccount: BankAccount | null = null;
   isLoading = false;
   isSidebarOpen = false;
+  isDropdownOpen = false;
 
   constructor(
+    private profileService: ProfileService,
     private fb: FormBuilder,
     private authService: AuthService
   ) {
@@ -25,23 +29,18 @@ export class ProfileComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       birthday: ['', [Validators.required]],
       monthlyIncome: ['', [Validators.required, Validators.min(0)]],
-      collateralAvailable: ['', [Validators.required]]
+      collateralAvailable: ['', [Validators.required]],
+      customerSince: ['', [Validators.required]]
     });
   }
 
   ngOnInit() {
     // Get current user data
     this.authService.currentUser$.subscribe(user => {
-      if (user) {
+      this.profileService.getProfile().subscribe(user => {
         this.user = user;
-        this.profileForm.patchValue({
-          username: user.username,
-          email: user.email,
-          birthday: user.birthday,
-          monthlyIncome: user.monthlyIncome,
-          collateralAvailable: user.collateralAvailable
-        });
-      }
+        this.resetForm();
+      });
     });
 
     // Load bank account data
@@ -79,5 +78,13 @@ export class ProfileComponent implements OnInit {
         collateralAvailable: this.user.collateralAvailable
       });
     }
+  }
+
+  toggleDropdown() {
+    this.isDropdownOpen = !this.isDropdownOpen;
+  }
+
+  logout() {
+    this.authService.logout();
   }
 }

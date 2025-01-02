@@ -15,12 +15,12 @@ import { CommonModule } from '@angular/common';
           </div>
           
           <div class="hidden md:flex items-center space-x-8">
-            <a href="#" class="text-gray-600 hover:text-gray-900">Products</a>
-            <a href="#" class="text-gray-600 hover:text-gray-900">Features</a>
-            <a href="#" class="text-gray-600 hover:text-gray-900">Pricing</a>
+            <a href="#products" class="text-gray-600 hover:text-gray-900">Products</a>
+            <a href="#features" class="text-gray-600 hover:text-gray-900">Features</a>
+            <a href="#pricing" class="text-gray-600 hover:text-gray-900">Pricing</a>
             <a routerLink="/login" class="text-gray-600 hover:text-gray-900">Login</a>
             <button class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-md">
-              Get Started
+              <a routerLink="/register">Get Started</a>
             </button>
           </div>
 

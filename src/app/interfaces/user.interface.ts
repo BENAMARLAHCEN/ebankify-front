@@ -25,15 +25,16 @@ export interface Authority {
 }
 
 export interface User {
+    id?: number;
     username: string;
     email: string;
-    password: string;
     birthday: Date;
     monthlyIncome: number;
     collateralAvailable: string;
     customerSince?: Date;
     role?: string;
 }
+
 
 export interface BankAccount {
     id?: number;

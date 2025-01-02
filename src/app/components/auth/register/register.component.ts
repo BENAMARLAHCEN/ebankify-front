@@ -1,13 +1,14 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators,ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common'; // Import CommonModule
 import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule]
+  imports: [ReactiveFormsModule, RouterLink, CommonModule] // Add CommonModule to imports
 })
 export class RegisterComponent {
   registerForm: FormGroup;
@@ -32,18 +33,16 @@ export class RegisterComponent {
   onSubmit(): void {
     if (this.registerForm.valid) {
       this.isLoading = true;
-      this.authService.register(this.registerForm.value).subscribe({
-        next: () => {
+      this.authService.register(this.registerForm.value).subscribe(
+        () => {
+          this.isLoading = false;
           this.router.navigate(['/login']);
         },
-        error: (error) => {
-          console.error('Registration failed:', error);
+        (error) => {
           this.isLoading = false;
-        },
-        complete: () => {
-          this.isLoading = false;
+          console.error('Registration error:', error);
         }
-      });
+      );
     }
   }
 }

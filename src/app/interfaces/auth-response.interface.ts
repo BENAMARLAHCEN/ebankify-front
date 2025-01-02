@@ -1,6 +1,7 @@
+import { User } from "./user.interface";
 
 export interface AuthResponse {
-    role : string;
-    userId : number;
-    token: string;
+    accessToken: string;
+    refreshToken: string;
+    user: User;
 }

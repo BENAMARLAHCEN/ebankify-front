@@ -17,7 +17,7 @@ export class ProfileService {
   ) {}
 
     getProfile(): Observable<User> {
-        const token = this.tokenService.getToken();
+        const token = this.tokenService.getAccessToken();
         return this.http.get<User>(`${this.apiUrl}/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -26,7 +26,7 @@ export class ProfileService {
     }
 
     updateProfile(user: User): Observable<User> {
-        const token = this.tokenService.getToken();
+        const token = this.tokenService.getAccessToken();
         return this.http.put<User>(`${this.apiUrl}/profile`, user, {
             headers: {
                 Authorization: `Bearer ${token}`
@@ -35,7 +35,7 @@ export class ProfileService {
     }
 
     deleteProfile(): Observable<void> {
-        const token = this.tokenService.getToken();
+        const token = this.tokenService.getAccessToken();
         return this.http.delete<void>(`${this.apiUrl}/profile`, {
             headers: {
                 Authorization: `Bearer ${token}`

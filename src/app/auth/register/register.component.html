@@ -1,0 +1,119 @@
+<div class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+  <div class="w-full max-w-2xl p-4 sm:p-6 lg:p-8 bg-white shadow-lg rounded-lg mt-10">
+    <h2 class="mb-6 text-xl sm:text-2xl font-bold text-center text-gray-700">Register</h2>
+    <form (ngSubmit)="onSubmit()">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="mb-4">
+          <label for="username" class="block text-sm font-medium text-gray-600">Username</label>
+          <input
+            id="username"
+            type="text"
+            [(ngModel)]="registerRequest.username"
+            name="username"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="registerRequest.email"
+            name="email"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
+          <input
+            id="password"
+            type="password"
+            [(ngModel)]="registerRequest.password"
+            name="password"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="birthday" class="block text-sm font-medium text-gray-600">Birthday</label>
+          <input
+            id="birthday"
+            type="date"
+            [(ngModel)]="registerRequest.birthday"
+            name="birthday"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="monthlyIncome" class="block text-sm font-medium text-gray-600">Monthly Income</label>
+          <input
+            id="monthlyIncome"
+            type="number"
+            [(ngModel)]="registerRequest.monthlyIncome"
+            name="monthlyIncome"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="collateralAvailable" class="block text-sm font-medium text-gray-600">Collateral Available</label>
+          <input
+            id="collateralAvailable"
+            type="text"
+            [(ngModel)]="registerRequest.collateralAvailable"
+            name="collateralAvailable"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="customerSince" class="block text-sm font-medium text-gray-600">Customer Since</label>
+          <input
+            id="customerSince"
+            type="date"
+            [(ngModel)]="registerRequest.customerSince"
+            name="customerSince"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+          />
+        </div>
+
+        <div class="mb-4">
+          <label for="role" class="block text-sm font-medium text-gray-600">Role</label>
+          <select
+            id="role"
+            [(ngModel)]="registerRequest.role"
+            name="role"
+            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            required
+          >
+            <option value="USER">User</option>
+            <option value="ADMIN">Admin</option>
+            <option value="EMPLOYEE">Employee</option>
+          </select>
+        </div>
+      </div>
+
+      <div *ngIf="errorMessage" class="mb-4 text-sm text-red-600">
+        {{ errorMessage }}
+      </div>
+
+      <button
+        type="submit"
+        class="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+      >
+        Register
+      </button>
+    </form>
+    <div class="mt-4 text-center">
+      <a routerLink="/login" class="text-sm sm:text-base text-blue-600 hover:underline">Already have an account? Login here</a>
+    </div>
+  </div>
+</div>

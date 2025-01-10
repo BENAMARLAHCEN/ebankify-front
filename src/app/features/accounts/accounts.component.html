@@ -1,0 +1,229 @@
+<div class="space-y-6">
+    <!-- Account Overview Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-blue-700 text-lg mb-2">Total Balance</h3>
+        <p class="text-blue-700 text-3xl font-bold">{{ getTotalBalance() | currency }}</p>
+      </div>
+  
+      <div class="bg-green-50 rounded-lg p-6">
+        <h3 class="text-green-700 text-lg mb-2">Active Accounts</h3>
+        <p class="text-green-700 text-3xl font-bold">{{ getActiveAccountsCount() }}</p>
+      </div>
+  
+      <div class="bg-purple-50 rounded-lg p-6">
+        <h3 class="text-purple-700 text-lg mb-2">Total Accounts</h3>
+        <p class="text-purple-700 text-3xl font-bold">{{ accounts.length }}</p>
+      </div>
+    </div>
+  
+    <!-- Filtering and Sorting Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex flex-wrap gap-4">
+        <!-- Account Type Filter -->
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+          <select [(ngModel)]="filters.type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            <option value="ALL">All Types</option>
+            <option value="SAVINGS">Savings</option>
+            <option value="CHECKING">Checking</option>
+          </select>
+        </div>
+  
+        <!-- Status Filter -->
+        <div class="flex-1 min-w-[200px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select [(ngModel)]="filters.status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+            <option value="ALL">All Status</option>
+            <option value="ACTIVE">Active</option>
+            <option value="BLOCKED">Blocked</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Accounts List Section -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-semibold">{{ currentUser?.role === 'USER' ? 'Your Accounts' : 'All Accounts' }}</h2>
+          <button *ngIf="currentUser?.role === 'USER'" 
+                  (click)="showCreateForm = true"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+            New Account
+          </button>
+        </div>
+  
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="text-gray-500 border-b">
+                <th class="text-left pb-3 font-medium cursor-pointer" (click)="onSortChange('accountNumber')">
+                  Account Number
+                  <i class="fas fa-sort ml-1"></i>
+                </th>
+                <th class="text-left pb-3 font-medium cursor-pointer" (click)="onSortChange('type')">
+                  Type
+                  <i class="fas fa-sort ml-1"></i>
+                </th>
+                <th class="text-left pb-3 font-medium cursor-pointer" (click)="onSortChange('balance')">
+                  Balance
+                  <i class="fas fa-sort ml-1"></i>
+                </th>
+                <th class="text-left pb-3 font-medium cursor-pointer" (click)="onSortChange('status')">
+                  Status
+                  <i class="fas fa-sort ml-1"></i>
+                </th>
+                <th class="text-left pb-3 font-medium">Last Transaction</th>
+                <th class="text-right pb-3 font-medium">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let account of filteredAccounts" class="border-b">
+                <td class="py-4">{{ account.accountNumber }}</td>
+                <td class="py-4">{{ account.type }}</td>
+                <td class="py-4">{{ account.balance | currency }}</td>
+                <td class="py-4">
+                  <span [class]="'px-3 py-1 rounded-full text-sm ' + 
+                    (account.status === 'ACTIVE' 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-red-100 text-red-700')">
+                    {{ account.status }}
+                  </span>
+                </td>
+                <td class="py-4">{{ account.lastTransaction | date }}</td>
+                <td class="py-4 text-right">
+                  <!-- User Actions -->
+                  <ng-container *ngIf="currentUser?.role === 'USER'">
+                    <button (click)="editAccount(account)" class="text-blue-600 hover:text-blue-800 mx-2">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="viewTransactions(account.id)"
+                            class="text-gray-600 hover:text-gray-800 mx-2">
+                      <i class="fas fa-history"></i>
+                    </button>
+                  </ng-container>
+                  
+                  <!-- Admin/Employee Actions -->
+                  <ng-container *ngIf="currentUser?.role !== 'USER'">
+                    <button (click)="editAccount(account)" class="text-blue-600 hover:text-blue-800 mx-2">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="viewTransactions(account.id)"
+                            class="text-gray-600 hover:text-gray-800 mx-2">
+                      <i class="fas fa-history"></i>
+                    </button>
+                  </ng-container>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- Pagination -->
+        <div class="mt-6 flex items-center justify-between">
+          <p class="text-sm text-gray-700">
+            Showing {{ currentPage * pageSize + 1 }} to 
+            {{ getDisplayedElementsCount() }} of 
+            {{ totalElements }} accounts
+          </p>
+          <div class="flex space-x-2">
+            <button *ngFor="let page of pages"
+                    (click)="onPageChange(page)"
+                    [class]="'px-3 py-1 rounded ' + 
+                      (currentPage === page 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200')">
+              {{ page + 1 }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Edit Account Modal -->
+    <div *ngIf="showEditForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Edit Account</h2>
+            <button (click)="closeEditForm()" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+  
+          <form [formGroup]="editAccountForm" (ngSubmit)="updateAccount()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+              <select formControlName="type" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <option value="SAVINGS">Savings Account</option>
+                <option value="CHECKING">Checking Account</option>
+              </select>
+            </div>
+  
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select formControlName="status" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                <option value="ACTIVE">Active</option>
+                <option value="BLOCKED">Blocked</option>
+              </select>
+            </div>
+  
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" (click)="closeEditForm()"
+                      class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+              </button>
+              <button type="submit" [disabled]="!editAccountForm.valid"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Create Account Modal -->
+    <div *ngIf="showCreateForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+        <div class="p-6">
+          <div class="flex justify-between items-center mb-4">
+            <h2 class="text-xl font-semibold">Create New Account</h2>
+            <button (click)="showCreateForm = false" class="text-gray-500 hover:text-gray-700">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+  
+          <form [formGroup]="createAccountForm" (ngSubmit)="createAccount()" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+              <select formControlName="type"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="SAVINGS">Savings Account</option>
+                <option value="CHECKING">Checking Account</option>
+              </select>
+            </div>
+  
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Initial Balance</label>
+              <input type="number" formControlName="balance"
+                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                     placeholder="Enter initial balance">
+            </div>
+  
+            <div class="flex justify-end space-x-3 mt-6">
+              <button type="button" (click)="showCreateForm = false"
+                      class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+              </button>
+              <button type="submit" [disabled]="!createAccountForm.valid"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                Create Account
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

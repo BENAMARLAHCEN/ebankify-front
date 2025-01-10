@@ -1,0 +1,219 @@
+<div class="space-y-6">
+    <!-- Bills Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-blue-700 text-lg mb-2">Total Bills</h3>
+        <p class="text-blue-700 text-3xl font-bold">{{ bills.length }}</p>
+      </div>
+      
+      <div class="bg-red-50 rounded-lg p-6">
+        <h3 class="text-red-700 text-lg mb-2">Unpaid Bills</h3>
+        <p class="text-red-700 text-3xl font-bold">
+          {{ getFilteredBills('UNPAID').length }}
+        </p>
+      </div>
+  
+      <div class="bg-green-50 rounded-lg p-6">
+        <h3 class="text-green-700 text-lg mb-2">Paid Bills</h3>
+        <p class="text-green-700 text-3xl font-bold">
+          {{ getFilteredBills('PAID').length }}
+        </p>
+      </div>
+    </div>
+  
+    <!-- Bills List -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-xl font-semibold">{{ isAdminOrEmployee ? 'All Bills' : 'Your Bills' }}</h2>
+          
+          <!-- Admin/Employee Only -->
+          <button *ngIf="isAdminOrEmployee"
+                  (click)="showCreateBillForm = true"
+                  class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+            Create Bill
+          </button>
+        </div>
+  
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left pb-3">
+                  <button (click)="sort('biller')" class="flex items-center">
+                    Biller
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-left pb-3">
+                  <button (click)="sort('dueDate')" class="flex items-center">
+                    Due Date
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-right pb-3">
+                  <button (click)="sort('amount')" class="flex items-center justify-end">
+                    Amount
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-center pb-3">Status</th>
+                <th class="text-right pb-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let bill of bills" class="border-b last:border-0">
+                <td class="py-4">{{ bill.biller }}</td>
+                <td class="py-4">{{ bill.dueDate | date }}</td>
+                <td class="py-4 text-right">{{ bill.amount | currency }}</td>
+                <td class="py-4 text-center">
+                  <span [class]="'px-3 py-1 rounded-full text-sm ' + getStatusClass(bill.status)">
+                    {{ bill.status }}
+                  </span>
+                </td>
+                <td class="py-4 text-right">
+                  <button *ngIf="bill.status === 'UNPAID'"
+                          (click)="showPayBillForm(bill)"
+                          class="text-blue-600 hover:text-blue-700">
+                    Pay Now
+                  </button>
+                  <span *ngIf="bill.status === 'PAID'" class="text-green-600">
+                    <i class="fas fa-check-circle"></i> Paid
+                  </span>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr *ngIf="bills.length === 0">
+                <td colspan="5" class="py-8 text-center text-gray-500">
+                  No bills found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- Pagination -->
+        <div *ngIf="totalPages > 1" class="mt-6 flex items-center justify-between">
+          <div class="text-sm text-gray-700">
+            Showing {{ currentPage * pageSize + 1 }} to 
+            {{ getDisplayedElementsCount() }} of 
+            {{ totalElements }} bills
+          </div>
+          <div class="flex gap-2">
+            <button 
+              *ngFor="let page of [].constructor(totalPages); let i = index"
+              (click)="goToPage(i)"
+              [class]="'px-3 py-1 rounded ' + 
+                (currentPage === i ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200')">
+              {{ i + 1 }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Pay Bill Modal -->
+  <div *ngIf="showPaymentForm && selectedBill" 
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Pay Bill</h2>
+          <button (click)="showPaymentForm = false" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+  
+        <form [formGroup]="paymentForm" (ngSubmit)="payBill()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Select Account</label>
+            <select formControlName="accountNumber"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+              <option *ngFor="let account of userAccounts" [value]="account.accountNumber">
+                {{ account.accountNumber }} ({{ account.balance | currency }})
+              </option>
+            </select>
+          </div>
+  
+          <div class="pt-4 border-t">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Bill Amount:</span>
+              <span class="font-medium">{{ selectedBill.amount | currency }}</span>
+            </div>
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-600">Due Date:</span>
+              <span class="font-medium">{{ selectedBill.dueDate | date }}</span>
+            </div>
+          </div>
+  
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button"
+                    (click)="showPaymentForm = false"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="submit"
+                    [disabled]="!paymentForm.valid"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              Confirm Payment
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Create Bill Modal -->
+  <div *ngIf="showCreateBillForm" 
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Create New Bill</h2>
+          <button (click)="showCreateBillForm = false" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+  
+        <form [formGroup]="createBillForm" (ngSubmit)="createBill()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Biller Name</label>
+            <input type="text"
+                   formControlName="biller"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                   placeholder="Enter biller name">
+          </div>
+  
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+            <input type="number"
+                   formControlName="amount"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                   placeholder="Enter amount">
+          </div>
+  
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+            <input type="date"
+                   formControlName="dueDate"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+          </div>
+  
+          <div class="flex justify-end space-x-3 mt-6">
+            <button type="button"
+                    (click)="showCreateBillForm = false"
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+              Cancel
+            </button>
+            <button type="submit"
+                    [disabled]="!createBillForm.valid"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+              Create Bill
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>

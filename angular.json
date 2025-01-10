@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "banking-app": {
+    "bank-management": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/banking-app",
+            "outputPath": "dist/bank-management",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -29,12 +29,7 @@
             "styles": [
               "src/styles.css"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -64,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "banking-app:build:production"
+              "buildTarget": "bank-management:build:production"
             },
             "development": {
-              "buildTarget": "banking-app:build:development"
+              "buildTarget": "bank-management:build:development"
             }
           },
           "defaultConfiguration": "development"

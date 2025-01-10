@@ -1,28 +1,21 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-interface Loan {
-  id: number;
-  userId: number;
-  amount: number;
-  interestRate: number;
-  loanStartDate: string;
-  loanEndDate: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ONGOING' | 'COMPLETED';
-  purpose?: string;
-}
+import { LoanDTO } from '../../../core/services/loan.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-loan-details-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   template: `
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+      <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
         <div class="p-6">
+          <!-- Header -->
           <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Loan Details</h2>
-            <button (click)="close.emit()" class="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 transition-colors">
+            <h2 class="text-2xl font-bold text-gray-900">Loan Details</h2>
+            <button (click)="close.emit()" 
+                    class="text-gray-400 hover:text-gray-500 transition-colors">
               <span class="sr-only">Close</span>
               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -30,103 +23,101 @@ interface Loan {
             </button>
           </div>
 
-          <div class="space-y-6">
-            <!-- Loan Amount -->
-            <div class="flex items-center p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-500 dark:text-blue-300 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          <!-- Loan Amount Card -->
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+            <div class="flex items-center">
+              <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
               <div>
-                <h3 class="text-sm font-medium text-blue-800 dark:text-blue-200">Loan Amount</h3>
-                <p class="mt-1 text-2xl font-semibold text-blue-900 dark:text-blue-100">{{ loan.amount | currency }}</p>
+                <p class="text-sm font-medium text-blue-600">Loan Amount</p>
+                <p class="text-2xl font-semibold text-blue-900">{{ loan.amount | currency }}</p>
               </div>
-            </div>
-
-            <!-- Interest Rate and Duration -->
-            <div class="grid grid-cols-2 gap-4">
-              <div class="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                </svg>
-                <div>
-                  <h3 class="text-xs font-medium text-gray-500 dark:text-gray-400">Interest Rate</h3>
-                  <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">{{ loan.interestRate }}%</p>
-                </div>
-              </div>
-
-              <div class="flex items-center p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <h3 class="text-xs font-medium text-gray-500 dark:text-gray-400">Duration</h3>
-                  <p class="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
-                    {{ getDuration(loan) }} months
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loan Start and End Dates -->
-            <div class="space-y-3">
-              <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">Start Date</h3>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ loan.loanStartDate | date:'mediumDate' }}</p>
-                </div>
-              </div>
-
-              <div class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                <div>
-                  <h3 class="text-sm font-medium text-gray-500 dark:text-gray-400">End Date</h3>
-                  <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ loan.loanEndDate | date:'mediumDate' }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Loan Status -->
-            <div class="flex items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-500 dark:text-gray-400 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <div>
-                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Status</h3>
-                <p class="mt-1 text-lg font-semibold" [ngClass]="{
-                  'text-green-600 dark:text-green-400': loan.status === 'APPROVED' || loan.status === 'COMPLETED',
-                  'text-yellow-600 dark:text-yellow-400': loan.status === 'PENDING',
-                  'text-red-600 dark:text-red-400': loan.status === 'REJECTED',
-                  'text-blue-600 dark:text-blue-400': loan.status === 'ONGOING'
-                }">
-                  {{ loan.status }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Loan Purpose -->
-            <div *ngIf="loan.purpose" class="p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
-              <div class="flex items-center mb-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Purpose</h3>
-              </div>
-              <p class="text-sm text-gray-600 dark:text-gray-300">{{ loan.purpose }}</p>
             </div>
           </div>
 
-          <!-- Close Button -->
-          <div class="mt-8">
-            <button
-              (click)="close.emit()"
-              class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
-            >
+          <!-- Loan Details Grid -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <!-- Interest Rate -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm font-medium text-gray-500">Interest Rate</p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.interestRate }}%</p>
+            </div>
+
+            <!-- Duration -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm font-medium text-gray-500">Duration</p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">{{ getDuration() }} months</p>
+            </div>
+
+            <!-- Start Date -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm font-medium text-gray-500">Start Date</p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.loanStartDate | date:'mediumDate' }}</p>
+            </div>
+
+            <!-- End Date -->
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm font-medium text-gray-500">End Date</p>
+              <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.loanEndDate | date:'mediumDate' }}</p>
+            </div>
+          </div>
+
+          <!-- Status Section -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div>
+                <p class="text-sm font-medium text-gray-500">Status</p>
+                <span [class]="'mt-1 inline-flex px-3 py-1 rounded-full text-sm font-medium ' + getStatusClasses()">
+                  {{ loan.status }}
+                </span>
+              </div>
+              <svg xmlns="http://www.w3.org/2000/svg" 
+                   [class]="'w-8 h-8 ' + getStatusIconColor()" 
+                   fill="none" 
+                   viewBox="0 0 24 24" 
+                   stroke="currentColor">
+                <path stroke-linecap="round" 
+                      stroke-linejoin="round" 
+                      stroke-width="2" 
+                      [attr.d]="getStatusIcon()" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Loan Purpose -->
+          <div *ngIf="loan.purpose" class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Purpose</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-700">{{ loan.purpose }}</p>
+            </div>
+          </div>
+
+          <!-- Remarks -->
+          <div *ngIf="loan.remarks" class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Remarks</h3>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-gray-700">{{ loan.remarks }}</p>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex justify-end space-x-3">
+            <button (click)="close.emit()" 
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
               Close
+            </button>
+            <button *ngIf="loan.status === 'PENDING' && isEmployeeOrAdmin" 
+                    (click)="approve.emit(loan)"
+                    class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+              Approve
+            </button>
+            <button *ngIf="loan.status === 'PENDING' && isEmployeeOrAdmin" 
+                    (click)="reject.emit(loan)"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+              Reject
             </button>
           </div>
         </div>
@@ -135,12 +126,66 @@ interface Loan {
   `
 })
 export class LoanDetailsModalComponent {
-  @Input() loan!: Loan;
+  @Input() loan!: LoanDTO;
+  @Input() isEmployeeOrAdmin: boolean = false;
   @Output() close = new EventEmitter<void>();
+  @Output() approve = new EventEmitter<LoanDTO>();
+  @Output() reject = new EventEmitter<LoanDTO>();
 
-  getDuration(loan: Loan): number {
-    const start = new Date(loan.loanStartDate);
-    const end = new Date(loan.loanEndDate);
+  getDuration(): number {
+    const start = new Date(this.loan.loanStartDate);
+    const end = new Date(this.loan.loanEndDate);
     return Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24 * 30));
+  }
+
+  getStatusClasses(): string {
+    switch (this.loan.status) {
+      case 'APPROVED':
+        return 'bg-green-100 text-green-800';
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'REJECTED':
+        return 'bg-red-100 text-red-800';
+      case 'ONGOING':
+        return 'bg-blue-100 text-blue-800';
+      case 'COMPLETED':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  }
+
+  getStatusIconColor(): string {
+    switch (this.loan.status) {
+      case 'APPROVED':
+        return 'text-green-600';
+      case 'PENDING':
+        return 'text-yellow-600';
+      case 'REJECTED':
+        return 'text-red-600';
+      case 'ONGOING':
+        return 'text-blue-600';
+      case 'COMPLETED':
+        return 'text-gray-600';
+      default:
+        return 'text-gray-600';
+    }
+  }
+
+  getStatusIcon(): string {
+    switch (this.loan.status) {
+      case 'APPROVED':
+        return 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+      case 'PENDING':
+        return 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z';
+      case 'REJECTED':
+        return 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z';
+      case 'ONGOING':
+        return 'M13 10V3L4 14h7v7l9-11h-7z';
+      case 'COMPLETED':
+        return 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z';
+      default:
+        return 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z';
+    }
   }
 }

@@ -1,0 +1,195 @@
+<div class="space-y-6">
+    <!-- Loan Summary Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-blue-700 text-lg mb-2">Total Loans</h3>
+        <p class="text-blue-700 text-3xl font-bold">{{ totalElements }}</p>
+      </div>
+      
+      <div class="bg-green-50 rounded-lg p-6">
+        <h3 class="text-green-700 text-lg mb-2">Active Loans</h3>
+        <p class="text-green-700 text-3xl font-bold">
+          {{ getActiveLoanAmount() | currency }}
+        </p>
+      </div>
+  
+      <div class="bg-purple-50 rounded-lg p-6">
+        <h3 class="text-purple-700 text-lg mb-2">Pending Requests</h3>
+        <p class="text-purple-700 text-3xl font-bold">
+          {{ getFilteredLoans('PENDING').length }}
+        </p>
+      </div>
+    </div>
+  
+    <!-- Request Loan Button (Only for Users) -->
+    <div *ngIf="userRole === 'USER'" class="flex justify-end">
+      <button (click)="showLoanRequestModal = true"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        Request New Loan
+      </button>
+    </div>
+  
+    <!-- Loans List -->
+    <div class="bg-white rounded-lg shadow-sm">
+      <div class="p-6">
+        <h2 class="text-xl font-semibold mb-4">{{ userRole === 'USER' ? 'Your Loans' : 'All Loan Requests' }}</h2>
+        
+        <!-- Filter dropdown -->
+        <div class="mb-4">
+          <label for="statusFilter" class="mr-2">Filter by status:</label>
+          <select id="statusFilter" [(ngModel)]="filterStatus" (change)="applyFilter()"
+                  class="border rounded p-2">
+            <option value="ALL">All</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+            <option value="ONGOING">Ongoing</option>
+            <option value="COMPLETED">Completed</option>
+          </select>
+        </div>
+        
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="flex justify-center items-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        </div>
+  
+        <!-- Loans Table -->
+        <div *ngIf="!isLoading" class="overflow-x-auto">
+          <table class="w-full">
+            <thead>
+              <tr class="border-b">
+                <th class="text-left pb-3">
+                  <button (click)="sort('loanStartDate')" class="flex items-center">
+                    Request Date
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-left pb-3">
+                  <button (click)="sort('amount')" class="flex items-center">
+                    Amount
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-left pb-3">
+                  <button (click)="sort('interestRate')" class="flex items-center">
+                    Interest Rate
+                    <i class="fas fa-sort ml-1"></i>
+                  </button>
+                </th>
+                <th class="text-left pb-3">Duration</th>
+                <th class="text-center pb-3">Status</th>
+                <th class="text-right pb-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let loan of loans" class="border-b last:border-0">
+                <td class="py-4">{{ loan.loanStartDate | date }}</td>
+                <td class="py-4">{{ loan.amount | currency }}</td>
+                <td class="py-4">{{ loan.interestRate }}%</td>
+                <td class="py-4">{{ getDuration(loan) }} months</td>
+                <td class="py-4">
+                  <span [class]="'px-3 py-1 rounded-full text-sm ' + getStatusClass(loan.status)">
+                    {{ loan.status }}
+                  </span>
+                </td>
+                <td class="py-4 text-right">
+                  <!-- Admin/Employee Actions -->
+                  <ng-container *ngIf="userRole !== 'USER' && loan.status === 'PENDING'">
+                    <button (click)="approveLoan(loan)"
+                            class="text-green-600 hover:text-green-700 mx-2">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button (click)="openRejectDialog(loan)"
+                            class="text-red-600 hover:text-red-700 mx-2">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </ng-container>
+                  <!-- View Details -->
+                  <button (click)="viewLoanDetails(loan)"
+                          class="text-blue-600 hover:text-blue-700">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </td>
+              </tr>
+              
+              <!-- Empty State -->
+              <tr *ngIf="loans.length === 0">
+                <td colspan="6" class="py-8 text-center text-gray-500">
+                  No loans found
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+  
+        <!-- Pagination -->
+        <div *ngIf="totalPages > 1" class="mt-6 flex justify-between items-center">
+          <div class="text-sm text-gray-700">
+            Showing {{ currentPage * pageSize + 1 }} to {{ getDisplayedElementsCount() }} of {{ totalElements }} loans
+          </div>
+          <div class="flex gap-2">
+            <button *ngFor="let page of getPaginationRange()"
+                    (click)="goToPage(page)"
+                    [class]="'px-3 py-1 rounded ' + 
+                      (currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-100 hover:bg-gray-200')">
+              {{ page + 1 }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Loan Request Modal -->
+  <app-loan-request-modal
+    *ngIf="showLoanRequestModal"
+    (close)="showLoanRequestModal = false"
+    (submit)="requestLoan($event)">
+  </app-loan-request-modal>
+  
+  <!-- Loan Details Modal -->
+  <app-loan-details-modal
+    *ngIf="selectedLoan"
+    [loan]="selectedLoan"
+    [isEmployeeOrAdmin]="userRole !== 'USER'"
+    (close)="selectedLoan = null"
+    (approve)="approveLoan($event)"
+    (reject)="openRejectDialog($event)">
+  </app-loan-details-modal>
+  
+  <!-- Reject Loan Dialog -->
+  <div *ngIf="showRejectDialog"
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">
+      <h3 class="text-lg font-semibold mb-4">Reject Loan Request</h3>
+      <form [formGroup]="rejectForm" (ngSubmit)="rejectLoan()">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            Rejection Reason
+          </label>
+          <textarea
+            formControlName="remarks"
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg"
+            placeholder="Please provide a reason for rejection">
+          </textarea>
+          <div *ngIf="rejectForm.get('remarks')?.touched && rejectForm.get('remarks')?.errors?.['required']"
+               class="mt-1 text-sm text-red-600">
+            Rejection reason is required
+          </div>
+        </div>
+        <div class="flex justify-end space-x-3">
+          <button type="button"
+                  (click)="showRejectDialog = false"
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            Cancel
+          </button>
+          <button type="submit"
+                  [disabled]="!rejectForm.valid"
+                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+            Confirm Rejection
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>

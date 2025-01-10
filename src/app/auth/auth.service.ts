@@ -47,7 +47,6 @@ export class AuthService {
 
 
     isLoggedIn(): boolean {
-        console.log('ghdjsxiugciusdnxwbcud')
         return !!this.tokenService.getAccessToken() && !this.tokenService.isTokenExpired();
     }
 

@@ -1,11 +1,13 @@
-import { Routes } from '@angular/router';
+import { Routes, CanActivate } from '@angular/router';
 import { DashboardLayoutComponent } from './shared/components/layout/dashboard-layout.component';
 import { RoleGuard } from './core/guards/role.guard';
 import { AuthGuard } from './core/guards/auth.guard';
+import { NoAuthGuard } from './core/guards/no-auth.guard';
 
 export const routes: Routes = [
     {
         path: 'auth',
+        canActivate: [NoAuthGuard],
         loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule),
     },
     {

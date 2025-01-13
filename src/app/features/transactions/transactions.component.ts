@@ -96,8 +96,6 @@ export class TransactionsComponent implements OnInit {
             startDate: [''],
             endDate: ['']
         });
-
-        // Add conditional validation for recurring transactions
         this.transactionForm.get('frequency')?.valueChanges.subscribe(frequency => {
             if (frequency !== 'ONE_TIME') {
                 this.transactionForm.get('startDate')?.setValidators([Validators.required]);
@@ -124,8 +122,18 @@ export class TransactionsComponent implements OnInit {
         });
     }
 
+    private loadUserRoleAndTransactions() {
+        this.loading = true;
+        this.authService.getCurrentUser().subscribe(user => {
+            if (user) {
+                this.userRole = user.role;
+                this.loadTransactions();
+            }
+        });
+    }
+
     ngOnInit() {
-        this.loadTransactions();
+        this.loadUserRoleAndTransactions();
         this.setupSubscriptions();
     }
 
@@ -140,9 +148,10 @@ export class TransactionsComponent implements OnInit {
     loadTransactions() {
         this.loading = true;
         this.error = null;
+        console.log(this.userRole);
 
         const observable = this.userRole === 'USER' 
-            ? this.transactionService.getTransactionsForAccount(1) // Replace with actual account ID
+            ? this.transactionService.getMyTransactions()
             : this.transactionService.getAllTransactions();
 
         observable.subscribe({
@@ -262,7 +271,7 @@ export class TransactionsComponent implements OnInit {
 
     rejectTransaction(transaction: Transaction) {
         this.loading = true;
-        const remarks = 'Transaction rejected'; // You could add a remarks input field
+        const remarks = 'Transaction rejected';
         this.transactionService.rejectTransaction(transaction.id, remarks).subscribe({
             next: () => {
                 this.loadTransactions();
@@ -275,7 +284,6 @@ export class TransactionsComponent implements OnInit {
         });
     }
 
-    // ... rest of the utility methods remain the same ...
     setStatusFilter(status: string) {
         this.filters.status = status;
         this.loadTransactions();

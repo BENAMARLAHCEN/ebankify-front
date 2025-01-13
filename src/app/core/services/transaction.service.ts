@@ -46,6 +46,10 @@ export class TransactionService {
     return this.http.get<PagedResponse<Transaction>>(`${this.apiUrl}/account/${accountId}`);
   }
 
+  getMyTransactions(): Observable<PagedResponse<Transaction>> {
+    return this.http.get<PagedResponse<Transaction>>(`${this.apiUrl}/myTransaction`);
+  }
+
   getAllTransactions(): Observable<PagedResponse<Transaction>> {
     return this.http.get<PagedResponse<Transaction>>(`${this.apiUrl}/all`);
   }

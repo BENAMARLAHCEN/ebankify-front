@@ -110,6 +110,7 @@
                     {{ transaction.status }}
                   </span>
                 </td>
+                <td class="py-4">{{ transaction.type }}</td>
                 <td class="py-4 text-right">
                   <ng-container *ngIf="userRole !== 'USER' && transaction.status === 'PENDING'">
                     <button (click)="approveTransaction(transaction); $event.stopPropagation()"

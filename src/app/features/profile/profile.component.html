@@ -1,0 +1,216 @@
+<div class="max-w-4xl mx-auto p-6">
+    <div class="bg-white rounded-lg shadow-sm">
+      <!-- Profile Header -->
+      <div class="p-6 border-b">
+        <h1 class="text-2xl font-semibold text-gray-900">Profile Settings</h1>
+        <p class="mt-1 text-sm text-gray-600">
+          Manage your account settings and preferences
+        </p>
+      </div>
+  
+      <!-- Loading State -->
+      <div *ngIf="loading" class="p-6 flex justify-center">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+  
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="p-4 bg-red-50 border-l-4 border-red-400">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-circle text-red-400"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-red-700">{{ errorMessage }}</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Success Message -->
+      <div *ngIf="successMessage" class="p-4 bg-green-50 border-l-4 border-green-400">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-check-circle text-green-400"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm text-green-700">{{ successMessage }}</p>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Profile Content -->
+      <div class="p-6">
+        <div *ngIf="user" class="space-y-6">
+          <!-- User Info Section -->
+          <div class="flex items-center space-x-4 mb-6">
+            <div class="h-20 w-20 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="text-2xl font-semibold text-blue-600">
+                {{ user.username.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <h2 class="text-xl font-semibold">{{ user.username }}</h2>
+              <p class="text-gray-600">{{ user.email }}</p>
+              <div class="mt-2">
+                <span [class]="getRoleBadgeClasses(user.role)">
+                  <i [class]="getRoleIcon(user.role)" class="mr-1"></i>
+                  {{ getRoleDisplayName(user.role) }}
+                </span>
+              </div>
+            </div>
+          </div>
+  
+          <!-- Edit Form -->
+          <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                <input type="text"
+                       formControlName="username"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                       readonly>
+              </div>
+  
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                <input type="email"
+                       formControlName="email"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                       readonly>
+              </div>
+  
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Birthday</label>
+                <input type="date"
+                       formControlName="birthday"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                <div *ngIf="profileForm.get('birthday')?.touched && profileForm.get('birthday')?.errors?.['required']"
+                     class="mt-1 text-sm text-red-600">Birthday is required</div>
+              </div>
+  
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Monthly Income</label>
+                <input type="number"
+                       formControlName="monthlyIncome"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                <div *ngIf="profileForm.get('monthlyIncome')?.touched && profileForm.get('monthlyIncome')?.errors"
+                     class="mt-1 text-sm text-red-600">
+                  <span *ngIf="profileForm.get('monthlyIncome')?.errors?.['required']">Monthly income is required</span>
+                  <span *ngIf="profileForm.get('monthlyIncome')?.errors?.['min']">Monthly income must be positive</span>
+                </div>
+              </div>
+  
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Collateral Available</label>
+                <input type="text"
+                       formControlName="collateralAvailable"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+              </div>
+  
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Customer Since</label>
+                <input type="date"
+                       formControlName="customerSince"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                       readonly>
+              </div>
+            </div>
+  
+            <!-- Password Change Section -->
+            <div class="pt-6 mt-6 border-t">
+              <h3 class="text-lg font-medium text-gray-900 mb-4">Change Password</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">Current Password</label>
+                  <input type="password"
+                         formControlName="currentPassword"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                </div>
+  
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+                  <input type="password"
+                         formControlName="newPassword"
+                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                  <div *ngIf="profileForm.get('newPassword')?.touched && profileForm.get('newPassword')?.errors?.['minlength']"
+                       class="mt-1 text-sm text-red-600">Password must be at least 8 characters</div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Form Buttons -->
+            <div class="flex justify-end space-x-4">
+              <button type="button"
+                      (click)="resetForm()"
+                      class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                Cancel
+              </button>
+              <button type="submit"
+                      [disabled]="!profileForm.valid || !profileForm.dirty || loading"
+                      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                <span *ngIf="!loading">Save Changes</span>
+                <span *ngIf="loading" class="flex items-center space-x-2">
+                  <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  <span>Saving...</span>
+                </span>
+              </button>
+            </div>
+          </form>
+  
+          <!-- Account Deletion -->
+          <div class="pt-6 mt-6 border-t">
+            <h3 class="text-lg font-medium text-red-600">Danger Zone</h3>
+            <p class="mt-1 text-sm text-gray-600">
+              Once you delete your account, there is no going back. Please be certain.
+            </p>
+            <button (click)="showDeleteConfirmation = true"
+                    class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+              Delete Account
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Delete Account Confirmation Modal -->
+  <div *ngIf="showDeleteConfirmation" 
+       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6">
+      <div class="text-center">
+        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+          <i class="fas fa-exclamation-triangle text-red-600"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">Delete Account</h3>
+        <p class="text-sm text-gray-500 mb-6">
+          Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.
+        </p>
+        
+        <!-- Confirmation Input -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Please type "DELETE" to confirm
+          </label>
+          <input type="text"
+                 [(ngModel)]="deleteConfirmationText"
+                 class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"
+                 placeholder="Type DELETE">
+        </div>
+  
+        <div class="flex justify-end space-x-3">
+          <button (click)="showDeleteConfirmation = false"
+                  class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+            Cancel
+          </button>
+          <button (click)="deleteAccount()"
+                  [disabled]="deleteConfirmationText !== 'DELETE' || loading"
+                  class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50">
+            <span *ngIf="!loading">Delete Account</span>
+            <span *ngIf="loading" class="flex items-center space-x-2">
+              <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+              <span>Deleting...</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

@@ -1,0 +1,182 @@
+<!-- src/app/features/dashboard/dashboard.component.html -->
+<!-- Loading State -->
+<div *ngIf="loading" class="flex justify-center items-center h-64">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+  
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">
+    {{ error }}
+    <button (click)="loadDashboardData()" class="ml-2 underline">Retry</button>
+  </div>
+  
+  <div *ngIf="!loading && !error" class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <h1 class="text-2xl font-bold text-gray-900">
+        Welcome back, {{ currentUser?.username }}!
+      </h1>
+      <p class="mt-2 text-gray-600">
+        {{ isAdmin ? 'Administrator Dashboard Overview' : 'Your Financial Overview' }}
+      </p>
+    </div>
+  
+    <!-- Admin Dashboard -->
+    <ng-container *ngIf="isAdmin && adminStats">
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- User Stats -->
+        <div class="bg-blue-50 rounded-lg p-6">
+          <h3 class="text-blue-700 text-lg mb-2">Total Users</h3>
+          <p class="text-blue-700 text-3xl font-bold">
+            {{ adminStats.userStats.totalUsers }}
+          </p>
+          <p class="text-blue-600 text-sm mt-2">
+            <i class="fas fa-arrow-up"></i> 
+            {{ adminStats.userStats.newUsers }} new this month
+          </p>
+        </div>
+  
+        <!-- Transaction Stats -->
+        <div class="bg-green-50 rounded-lg p-6">
+          <h3 class="text-green-700 text-lg mb-2">Transactions</h3>
+          <p class="text-green-700 text-3xl font-bold">
+            {{ adminStats.transactionStats.totalTransactions }}
+          </p>
+          <p class="text-green-600 text-sm mt-2">
+            {{ adminStats.transactionStats.pendingTransactions }} pending
+          </p>
+        </div>
+  
+        <!-- Loan Stats -->
+        <div class="bg-yellow-50 rounded-lg p-6">
+          <h3 class="text-yellow-700 text-lg mb-2">Active Loans</h3>
+          <p class="text-yellow-700 text-3xl font-bold">
+            {{ adminStats.loanStats.activeLoans }}
+          </p>
+          <p class="text-yellow-600 text-sm mt-2">
+            {{ adminStats.loanStats.pendingLoans }} pending requests
+          </p>
+        </div>
+  
+        <!-- System Health -->
+        <div class="bg-purple-50 rounded-lg p-6">
+          <h3 class="text-purple-700 text-lg mb-2">System Health</h3>
+          <p class="text-purple-700 text-3xl font-bold">
+            {{ adminStats.systemHealth.cpuUsage }}%
+          </p>
+          <p class="text-purple-600 text-sm mt-2">
+            {{ adminStats.systemHealth.status }}
+          </p>
+        </div>
+      </div>
+  
+      <!-- Activity and Alerts -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Recent Activity -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-semibold mb-4">Recent Activity</h2>
+          <div class="space-y-4">
+            <div *ngFor="let activity of adminStats.recentActivity" 
+                 class="flex items-center justify-between py-3 border-b last:border-0">
+              <div class="flex items-center">
+                <div [class]="'rounded-full p-2 mr-4 ' + getActivityTypeClass(activity.type)">
+                  <i [class]="'fas ' + getActivityIcon(activity.type)"></i>
+                </div>
+                <div>
+                  <p class="font-medium">{{ activity.description }}</p>
+                  <p class="text-sm text-gray-500">{{ activity.timestamp | date:'short' }}</p>
+                </div>
+              </div>
+              <span [class]="'text-sm ' + getActivityStatusClass(activity.status)">
+                {{ activity.status }}
+              </span>
+            </div>
+          </div>
+        </div>
+  
+        <!-- System Alerts -->
+        <div class="bg-white rounded-lg shadow-sm p-6">
+          <h2 class="text-xl font-semibold mb-4">System Alerts</h2>
+          <div class="space-y-4">
+            <div *ngFor="let alert of adminStats.alerts" 
+                 [class]="'p-4 rounded-lg ' + getAlertClass(alert.severity)">
+              <div class="flex items-center">
+                <i [class]="'fas ' + getAlertIcon(alert.severity) + ' mr-3'"></i>
+                <div>
+                  <p class="font-medium">{{ alert.title }}</p>
+                  <p class="text-sm mt-1">{{ alert.message }}</p>
+                  <p class="text-xs mt-1 text-gray-500">
+                    {{ alert.timestamp | date:'medium' }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  
+    <!-- User Dashboard -->
+    <ng-container *ngIf="!isAdmin && userStats">
+      <!-- Stats Overview -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-blue-50 rounded-lg p-6">
+          <h3 class="text-blue-700 text-lg mb-2">Total Balance</h3>
+          <p class="text-blue-700 text-3xl font-bold">
+            {{ userStats.accountSummary.totalBalance | currency }}
+          </p>
+        </div>
+  
+        <div class="bg-green-50 rounded-lg p-6">
+          <h3 class="text-green-700 text-lg mb-2">Monthly Income</h3>
+          <p class="text-green-700 text-3xl font-bold">
+            {{ userStats.accountSummary.monthlyIncome | currency }}
+          </p>
+        </div>
+  
+        <div class="bg-red-50 rounded-lg p-6">
+          <h3 class="text-red-700 text-lg mb-2">Monthly Expenses</h3>
+          <p class="text-red-700 text-3xl font-bold">
+            {{ userStats.accountSummary.monthlyExpenses | currency }}
+          </p>
+        </div>
+  
+        <div class="bg-purple-50 rounded-lg p-6">
+          <h3 class="text-purple-700 text-lg mb-2">Due Bills</h3>
+          <p class="text-purple-700 text-3xl font-bold">
+            {{ userStats.billsSummary.pendingBills }}
+          </p>
+          <p class="text-purple-600 text-sm mt-2">
+            {{ userStats.billsSummary.totalDueAmount | currency }} total due
+          </p>
+        </div>
+      </div>
+  
+      <!-- Recent Transactions -->
+      <div class="bg-white rounded-lg shadow-sm p-6">
+        <h2 class="text-xl font-semibold mb-4">Recent Transactions</h2>
+        <div class="space-y-4">
+          <div *ngFor="let transaction of userStats.recentTransactions" 
+               class="flex items-center justify-between py-3 border-b last:border-0">
+            <div class="flex items-center">
+              <div [class]="'rounded-full p-2 mr-4 ' + 
+                (transaction.type === 'CREDIT' ? 'bg-green-100' : 'bg-red-100')">
+                <i [class]="'fas ' + 
+                  (transaction.type === 'CREDIT' ? 'fa-arrow-down text-green-500' : 'fa-arrow-up text-red-500')">
+                </i>
+              </div>
+              <div>
+                <p class="font-medium">{{ transaction.description }}</p>
+                <p class="text-sm text-gray-500">{{ transaction.date | date:'MMM d, yyyy' }}</p>
+              </div>
+            </div>
+            <p [class]="transaction.type === 'CREDIT' ? 'text-green-600' : 'text-red-600'"
+               class="font-semibold">
+              {{ transaction.type === 'CREDIT' ? '+' : '-' }}{{ transaction.amount | currency }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>

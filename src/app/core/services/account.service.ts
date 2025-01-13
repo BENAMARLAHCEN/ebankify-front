@@ -64,11 +64,11 @@ export class AccountService {
     return this.http.get<PageResponse<BankAccountDTO>>(`${this.apiUrl}/all`, { params });
   }
 
-  blockAccount(userId: number, accountId: number): Observable<BankAccountDTO> {
-    return this.http.patch<BankAccountDTO>(`${this.apiUrl}/admin/block/${userId}/${accountId}`, {});
+  blockAccount(accountId: number): Observable<BankAccountDTO> {
+    return this.http.patch<BankAccountDTO>(`${this.apiUrl}/admin/block/${accountId}`, {});
   }
 
-  activateAccount(userId: number, accountId: number): Observable<BankAccountDTO> {
-    return this.http.patch<BankAccountDTO>(`${this.apiUrl}/admin/activate/${userId}/${accountId}`, {});
+  activateAccount(accountId: number): Observable<BankAccountDTO> {
+    return this.http.patch<BankAccountDTO>(`${this.apiUrl}/admin/activate/${accountId}`, {});
   }
 }

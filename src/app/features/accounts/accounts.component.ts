@@ -131,7 +131,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
       });
   }
 
-  // Account Operations
   createAccount() {
     if (this.createAccountForm.valid) {
       this.loading = true;
@@ -203,6 +202,44 @@ export class AccountsComponent implements OnInit, OnDestroy {
           error: (error) => {
             console.error('Error deleting account:', error);
             this.error = 'Failed to delete account';
+            this.loading = false;
+          }
+        });
+    }
+  }
+
+  blockAccount(id : number, event: Event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to block this account?')) {
+      this.loading = true;
+      this.accountService.blockAccount(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.loadAccounts();
+          },
+          error: (error) => {
+            console.error('Error blocking account:', error);
+            this.error = 'Failed to block account';
+            this.loading = false;
+          }
+        });
+    }
+  }
+
+  unblockAccount(id : number, event: Event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to unblock this account?')) {
+      this.loading = true;
+      this.accountService.activateAccount(id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.loadAccounts();
+          },
+          error: (error) => {
+            console.error('Error unblocking account:', error);
+            this.error = 'Failed to unblock account';
             this.loading = false;
           }
         });

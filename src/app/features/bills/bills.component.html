@@ -72,11 +72,21 @@
                   </span>
                 </td>
                 <td class="py-4 text-right">
-                  <button *ngIf="bill.status === 'UNPAID'"
+                  <button *ngIf="bill.status === 'UNPAID' && !isAdminOrEmployee"
                           (click)="showPayBillForm(bill)"
                           class="text-blue-600 hover:text-blue-700">
                     Pay Now
                   </button>
+
+                  <span *ngIf="bill.status === 'UNPAID' && isAdminOrEmployee"
+                        class="text-gray-500">
+                        <i class="fas fa-lock"></i> Locked
+                  </span>
+                  <!-- <button *ngIf="isAdminOrEmployee"
+                          (click)="deleteBill(bill)"
+                          class="text-red-600 hover:text-red-700">
+                    Delete
+                  </button> -->
                   <span *ngIf="bill.status === 'PAID'" class="text-green-600">
                     <i class="fas fa-check-circle"></i> Paid
                   </span>

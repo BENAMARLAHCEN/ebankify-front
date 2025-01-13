@@ -1,10 +1,8 @@
 <div class="space-y-6">
-  <!-- Loading State -->
   <div *ngIf="loading" class="flex justify-center items-center py-8">
     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
   </div>
 
-  <!-- Error Message -->
   <div *ngIf="error" class="bg-red-50 p-4 rounded-lg">
     <div class="flex">
       <div class="flex-shrink-0">
@@ -17,7 +15,6 @@
   </div>
 
   <div *ngIf="!loading" class="space-y-6">
-    <!-- Account Overview Section -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="bg-blue-50 rounded-lg p-6">
         <h3 class="text-blue-700 text-lg mb-2">Total Balance</h3>
@@ -35,10 +32,8 @@
       </div>
     </div>
 
-    <!-- Filtering and Search Section -->
     <div class="bg-white rounded-lg shadow-sm p-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <!-- Account Type Filter -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
           <select [(ngModel)]="filters.type" (ngModelChange)="applyFilters()"
@@ -49,7 +44,6 @@
           </select>
         </div>
 
-        <!-- Status Filter -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
           <select [(ngModel)]="filters.status" (ngModelChange)="applyFilters()"
@@ -60,7 +54,6 @@
           </select>
         </div>
 
-        <!-- Search -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
           <input type="text" [(ngModel)]="filters.searchTerm" (ngModelChange)="applyFilters()"
@@ -70,7 +63,6 @@
       </div>
     </div>
 
-    <!-- Accounts List Section -->
     <div class="bg-white rounded-lg shadow-sm">
       <div class="p-6">
         <div class="flex justify-between items-center mb-6">
@@ -83,7 +75,6 @@
           </button>
         </div>
 
-        <!-- Table -->
         <div class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -119,18 +110,38 @@
                     {{ account.status }}
                   </span>
                 </td>
-                <!-- <td class="py-4">{{ account.lastTransaction | date }}</td> -->
                 <td class="py-4 text-right space-x-2 flex items-center">
-                  <button (click)="editAccount(account, $event)" class="text-blue-600 hover:text-blue-800 mx-2">
+                  <button *ngIf="currentUser?.role === 'USER'" (click)="editAccount(account, $event)"
+                    class="text-blue-600 hover:text-blue-800 mx-2">
                     <i class="fas fa-edit"></i>
                   </button>
-                  <!-- <button (click)="onTransfer(account.id); $event.stopPropagation()" *ngIf="account.status === 'ACTIVE'"
+                  <!-- <button *ngIf="currentUser?.role === 'USER'" (click)="onTransfer(account.id); $event.stopPropagation()"
                     class="text-green-600 hover:text-green-800 mx-2">
                     <i class="fas fa-exchange-alt"></i>
                   </button> -->
-                  <button (click)="deleteAccount(account.id, $event)" class="text-red-600 hover:text-red-800 mx-2">
+                  <button *ngIf="currentUser?.role === 'USER'" (click)="deleteAccount(account.id, $event)"
+                    class="text-red-600 hover:text-red-800 mx-2">
                     <i class="fas fa-trash"></i>
                   </button>
+
+                  <button (click)="viewAccountDetails(account)" class="text-blue-600 hover:text-blue-800 mx-2">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                  <button *ngIf="currentUser?.role === 'USER' && account.status === 'ACTIVE'"
+                    (click)="onTransfer(account.id); $event.stopPropagation()" 
+                    class="text-green-600 hover:text-green-800 mx-2">
+                    <i class="fas fa-exchange-alt"></i>
+                  </button>
+
+                  <button *ngIf="currentUser?.role === 'ADMIN' && account.status === 'ACTIVE'"
+                    (click)="blockAccount(account.id, $event)" class="text-red-600 hover:text-red-800 mx-2">
+                    <i class="fas fa-ban"></i>
+                  </button>
+                  <button *ngIf="currentUser?.role === 'ADMIN' && account.status === 'BLOCKED'"
+                    (click)="unblockAccount(account.id, $event)" class="text-green-600 hover:text-green-800 mx-2">
+                    <i class="fas fa-check"></i>
+                  </button>
+
                 </td>
               </tr>
               <tr *ngIf="filteredAccounts.length === 0">
@@ -142,7 +153,6 @@
           </table>
         </div>
 
-        <!-- Pagination -->
         <div *ngIf="totalPages > 1" class="mt-6 flex items-center justify-between">
           <div class="text-sm text-gray-700">
             Showing {{ currentPage * pageSize + 1 }} to {{ getDisplayedElementsCount() }}
@@ -159,7 +169,6 @@
     </div>
   </div>
 
-  <!-- Create Account Modal -->
   <div *ngIf="showCreateForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
       <div class="p-6">
@@ -202,7 +211,6 @@
     </div>
   </div>
 
-  <!-- Edit Account Modal -->
   <div *ngIf="showEditForm" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4">
       <div class="p-6">
@@ -250,13 +258,12 @@
             </button>
           </div>
 
-          
+
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Account Details Modal -->
   <app-account-details-modal *ngIf="showDetailsModal && selectedAccount" [account]="selectedAccount"
     (close)="showDetailsModal = false" (transfer)="onTransfer(selectedAccount.id)">
   </app-account-details-modal>

@@ -1,85 +1,163 @@
 // src/app/features/dashboard/dashboard.component.ts
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { AuthService } from '../../auth/auth.service';
+import { DashboardService, AdminDashboardStats, UserDashboardStats } from '../../core/services/dashboard.service';
+import { UserResponse } from '../../auth/models/user-response.model';
 
-// src/app/features/dashboard/dashboard.component.ts
 @Component({
-    selector: 'app-dashboard',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-        <!-- Total Balance -->
-        <div class="bg-blue-50 rounded-lg p-6">
-          <h3 class="text-blue-700 text-lg mb-2">Total Balance</h3>
-          <p class="text-blue-700 text-3xl font-bold">{{ totalBalance | currency:'USD':'symbol':'1.2-2' }}</p>
-        </div>
-  
-        <!-- Income -->
-        <div class="bg-green-50 rounded-lg p-6">
-          <h3 class="text-green-700 text-lg mb-2">Income</h3>
-          <p class="text-green-700 text-3xl font-bold">{{ monthlyIncome | currency:'USD':'symbol':'1.2-2' }}</p>
-        </div>
-  
-        <!-- Expenses -->
-        <div class="bg-purple-50 rounded-lg p-6">
-          <h3 class="text-purple-700 text-lg mb-2">Expenses</h3>
-          <p class="text-purple-700 text-3xl font-bold">{{ monthlyExpenses | currency:'USD':'symbol':'1.2-2' }}</p>
-        </div>
-      </div>
-  
-      <!-- Recent Transactions -->
-      <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="text-xl font-semibold mb-6">Recent Transactions</h2>
-        
-        <div class="space-y-4">
-          <div *ngFor="let transaction of recentTransactions" 
-               class="flex items-center justify-between py-3">
-            <div class="flex items-center">
-              <div [class]="'rounded-full p-2 mr-4 ' + 
-                (transaction.type === 'credit' ? 'bg-green-100' : 'bg-red-100')">
-                <i [class]="'fas ' + 
-                  (transaction.type === 'credit' ? 'fa-arrow-down text-green-500' : 'fa-arrow-up text-red-500')">
-                </i>
-              </div>
-              <div>
-                <p class="font-medium">{{ transaction.description }}</p>
-                <p class="text-gray-500 text-sm">{{ transaction.date | date:'MMM d, yyyy' }}</p>
-              </div>
-            </div>
-            <p [class]="transaction.type === 'credit' ? 'text-green-600' : 'text-red-600'"
-               class="font-semibold">
-              {{ transaction.type === 'credit' ? '' : '-' }}{{ transaction.amount | currency:'USD':'symbol':'1.2-2' }}
-            </p>
-          </div>
-        </div>
-      </div>
-    `
-  })
-  export class DashboardComponent {
-    totalBalance = 24500.00;
-    monthlyIncome = 3250.00;
-    monthlyExpenses = 1150.00;
-  
-    recentTransactions = [
-      {
-        description: 'Salary Deposit',
-        amount: 3250.00,
-        type: 'credit',
-        date: new Date('2025-01-05')
-      },
-      {
-        description: 'Rent Payment',
-        amount: 800.00,
-        type: 'debit',
-        date: new Date('2025-01-03')
-      },
-      {
-        description: 'Grocery Shopping',
-        amount: 150.00,
-        type: 'debit',
-        date: new Date('2025-01-02')
-      }
-    ];
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './dashboard.component.html'
+})
+export class DashboardComponent implements OnInit, OnDestroy {
+  currentUser: UserResponse | null = null;
+  isAdmin = false;
+  loading = true;
+  error: string | null = null;
+
+  adminStats: AdminDashboardStats | null = null;
+  userStats: UserDashboardStats | null = null;
+
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private authService: AuthService,
+    private dashboardService: DashboardService
+  ) {}
+
+  ngOnInit() {
+    this.loadUserAndData();
   }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadUserAndData() {
+    this.loading = true;
+    this.error = null;
+
+    this.authService.getCurrentUser()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (user) => {
+          if (user) {
+            this.currentUser = user;
+            this.isAdmin = user.role === 'ADMIN';
+            this.loadDashboardData();
+          }
+        },
+        error: (err) => {
+          console.error('Error loading user:', err);
+          this.error = 'Failed to load user information';
+          this.loading = false;
+        }
+      });
+  }
+
+  loadDashboardData() {
+    if (this.isAdmin) {
+      this.dashboardService.getAdminDashboardStats()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (stats) => {
+            this.adminStats = stats;
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Error loading admin stats:', err);
+            this.error = 'Failed to load dashboard statistics';
+            this.loading = false;
+          }
+        });
+    } else {
+      this.dashboardService.getUserDashboardStats()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (stats) => {
+            this.userStats = stats;
+            this.loading = false;
+          },
+          error: (err) => {
+            console.error('Error loading user stats:', err);
+            this.error = 'Failed to load dashboard statistics';
+            this.loading = false;
+          }
+        });
+    }
+  }
+
+  getActivityTypeClass(type: string): string {
+    switch (type) {
+      case 'LOGIN':
+        return 'bg-blue-100 text-blue-500';
+      case 'TRANSACTION':
+        return 'bg-green-100 text-green-500';
+      case 'LOAN':
+        return 'bg-yellow-100 text-yellow-500';
+      case 'ACCOUNT':
+        return 'bg-purple-100 text-purple-500';
+      default:
+        return 'bg-gray-100 text-gray-500';
+    }
+  }
+
+  getActivityIcon(type: string): string {
+    switch (type) {
+      case 'LOGIN':
+        return 'fa-user-circle';
+      case 'TRANSACTION':
+        return 'fa-exchange-alt';
+      case 'LOAN':
+        return 'fa-file-invoice-dollar';
+      case 'ACCOUNT':
+        return 'fa-credit-card';
+      default:
+        return 'fa-info-circle';
+    }
+  }
+
+  getActivityStatusClass(status: string): string {
+    switch (status) {
+      case 'SUCCESS':
+        return 'text-green-600';
+      case 'WARNING':
+        return 'text-yellow-600';
+      case 'ERROR':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
+    }
+  }
+
+  getAlertClass(severity: string): string {
+    switch (severity) {
+      case 'ERROR':
+        return 'bg-red-50 text-red-800';
+      case 'WARNING':
+        return 'bg-yellow-50 text-yellow-800';
+      case 'INFO':
+        return 'bg-blue-50 text-blue-800';
+      default:
+        return 'bg-gray-50 text-gray-800';
+    }
+  }
+
+  getAlertIcon(severity: string): string {
+    switch (severity) {
+      case 'ERROR':
+        return 'fa-exclamation-circle';
+      case 'WARNING':
+        return 'fa-exclamation-triangle';
+      case 'INFO':
+        return 'fa-info-circle';
+      default:
+        return 'fa-bell';
+    }
+  }
+}

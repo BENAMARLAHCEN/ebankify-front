@@ -50,8 +50,7 @@ export class BillsComponent implements OnInit {
       dueDate: ['', Validators.required]
     });
   }
-
-  ngOnInit() {
+  loadUserRoleAndBills() {
     this.authService.getCurrentUser().subscribe(user => {
       if (user) {
         this.userRole = user.role;
@@ -59,6 +58,10 @@ export class BillsComponent implements OnInit {
         this.loadBills();
       }
     });
+  }
+
+  ngOnInit() {
+    this.loadUserRoleAndBills();
   }
 
   loadBills() {

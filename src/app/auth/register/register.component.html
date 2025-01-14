@@ -1,119 +1,186 @@
 <div class="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-  <div class="w-full max-w-2xl p-4 sm:p-6 lg:p-8 bg-white shadow-lg rounded-lg mt-10">
-    <h2 class="mb-6 text-xl sm:text-2xl font-bold text-center text-gray-700">Register</h2>
-    <form (ngSubmit)="onSubmit()">
+  <div class="w-full max-w-2xl p-6 bg-white shadow-lg rounded-lg mt-10">
+    <h2 class="mb-6 text-2xl font-bold text-center text-gray-700">Register</h2>
+
+    <!-- Error Alert -->
+    <div *ngIf="errorMessage" class="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <i class="fas fa-exclamation-circle text-red-500"></i>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-red-700">{{ errorMessage }}</p>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Username Field -->
         <div class="mb-4">
           <label for="username" class="block text-sm font-medium text-gray-600">Username</label>
           <input
             id="username"
             type="text"
-            [(ngModel)]="registerRequest.username"
-            name="username"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
+            formControlName="username"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            [class.border-red-500]="registerForm.get('username')?.touched && registerForm.get('username')?.invalid"
+            placeholder="Choose a username"
           />
+          <div *ngIf="getErrorFor('username')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('username') }}
+          </div>
         </div>
 
+        <!-- Email Field -->
         <div class="mb-4">
           <label for="email" class="block text-sm font-medium text-gray-600">Email</label>
           <input
             id="email"
             type="email"
-            [(ngModel)]="registerRequest.email"
-            name="email"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
+            formControlName="email"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            [class.border-red-500]="registerForm.get('email')?.touched && registerForm.get('email')?.invalid"
+            placeholder="Enter your email"
           />
+          <div *ngIf="getErrorFor('email')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('email') }}
+          </div>
         </div>
 
+        <!-- Password Field -->
         <div class="mb-4">
           <label for="password" class="block text-sm font-medium text-gray-600">Password</label>
-          <input
-            id="password"
-            type="password"
-            [(ngModel)]="registerRequest.password"
-            name="password"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
+          <div class="relative">
+            <input
+              id="password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+              [class.border-red-500]="registerForm.get('password')?.touched && registerForm.get('password')?.invalid"
+              placeholder="Create a password"
+            />
+            <button 
+              type="button"
+              (click)="togglePasswordVisibility()"
+              class="absolute inset-y-0 right-0 flex items-center pr-3 mt-1 text-gray-400 hover:text-gray-600"
+            >
+              <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div *ngIf="getErrorFor('password')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('password') }}
+          </div>
         </div>
 
+        <!-- Birthday Field -->
         <div class="mb-4">
           <label for="birthday" class="block text-sm font-medium text-gray-600">Birthday</label>
           <input
             id="birthday"
             type="date"
-            [(ngModel)]="registerRequest.birthday"
-            name="birthday"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
+            formControlName="birthday"
+            [max]="maxDate | date:'yyyy-MM-dd'"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            [class.border-red-500]="registerForm.get('birthday')?.touched && registerForm.get('birthday')?.invalid"
           />
+          <div *ngIf="getErrorFor('birthday')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('birthday') }}
+          </div>
         </div>
 
+        <!-- Monthly Income Field -->
         <div class="mb-4">
           <label for="monthlyIncome" class="block text-sm font-medium text-gray-600">Monthly Income</label>
-          <input
-            id="monthlyIncome"
-            type="number"
-            [(ngModel)]="registerRequest.monthlyIncome"
-            name="monthlyIncome"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
-          />
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none mt-1">
+              <span class="text-gray-500">$</span>
+            </div>
+            <input
+              id="monthlyIncome"
+              type="number"
+              formControlName="monthlyIncome"
+              class="w-full pl-7 px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+              [class.border-red-500]="registerForm.get('monthlyIncome')?.touched && registerForm.get('monthlyIncome')?.invalid"
+              placeholder="Enter your monthly income"
+            />
+          </div>
+          <div *ngIf="getErrorFor('monthlyIncome')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('monthlyIncome') }}
+          </div>
         </div>
 
+        <!-- Collateral Available Field -->
         <div class="mb-4">
           <label for="collateralAvailable" class="block text-sm font-medium text-gray-600">Collateral Available</label>
           <input
             id="collateralAvailable"
             type="text"
-            [(ngModel)]="registerRequest.collateralAvailable"
-            name="collateralAvailable"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            formControlName="collateralAvailable"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            placeholder="Enter available collateral (optional)"
           />
         </div>
 
+        <!-- Customer Since Field -->
         <div class="mb-4">
           <label for="customerSince" class="block text-sm font-medium text-gray-600">Customer Since</label>
           <input
             id="customerSince"
             type="date"
-            [(ngModel)]="registerRequest.customerSince"
-            name="customerSince"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            formControlName="customerSince"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            [class.border-red-500]="registerForm.get('customerSince')?.touched && registerForm.get('customerSince')?.invalid"
+            [max]="maxDate | date:'yyyy-MM-dd'"
           />
+          <div *ngIf="getErrorFor('customerSince')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('customerSince') }}
+          </div>
         </div>
 
+        <!-- Role Selection Field -->
         <div class="mb-4">
           <label for="role" class="block text-sm font-medium text-gray-600">Role</label>
           <select
             id="role"
-            [(ngModel)]="registerRequest.role"
-            name="role"
-            class="w-full px-3 sm:px-4 py-2 mt-1 text-sm sm:text-base border rounded-lg focus:ring-blue-500 focus:border-blue-500"
-            required
+            formControlName="role"
+            class="w-full px-3 py-2 mt-1 text-sm border rounded-lg focus:ring-2 focus:ring-blue-400"
+            [class.border-red-500]="registerForm.get('role')?.touched && registerForm.get('role')?.invalid"
           >
             <option value="USER">User</option>
             <option value="ADMIN">Admin</option>
             <option value="EMPLOYEE">Employee</option>
           </select>
+          <div *ngIf="getErrorFor('role')" class="mt-1 text-sm text-red-600">
+            {{ getErrorFor('role') }}
+          </div>
         </div>
       </div>
 
-      <div *ngIf="errorMessage" class="mb-4 text-sm text-red-600">
-        {{ errorMessage }}
-      </div>
+      
 
+      <!-- Submit Button -->
       <button
         type="submit"
-        class="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 text-sm sm:text-base"
+        [disabled]="registerForm.invalid || loading"
+        class="w-full px-4 py-2 mt-6 text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Register
+        <span *ngIf="!loading">Register</span>
+        <span *ngIf="loading" class="flex items-center justify-center">
+          <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Registering...
+        </span>
       </button>
     </form>
+
+    <!-- Login Link -->
     <div class="mt-4 text-center">
-      <a routerLink="/login" class="text-sm sm:text-base text-blue-600 hover:underline">Already have an account? Login here</a>
+      <a routerLink="/auth/login" class="text-sm text-blue-600 hover:underline">
+        Already have an account? Login here
+      </a>
     </div>
   </div>
 </div>

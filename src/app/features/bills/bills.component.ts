@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../auth/auth.service';
 import { BillDTO, BillService, PagedResponse } from '../../core/services/bill.service';
+import { AccountService, BankAccountDTO } from '../../core/services/account.service';
 
 @Component({
   selector: 'app-bills',
@@ -30,14 +31,24 @@ export class BillsComponent implements OnInit {
 
   paymentForm: FormGroup;
   createBillForm: FormGroup;
-  userAccounts = [
-    { id: 1, accountNumber: '1234567890', balance: 5000 },
-    { id: 2, accountNumber: '0987654321', balance: 3500 }
-  ];
+  userAccounts: BankAccountDTO[] = [];
+  
+  getAllMyAccounts() {
+    this.accountService.getMyAccounts().subscribe({
+      next: (accounts) => {
+        this.userAccounts = accounts.content;
+      },
+      error: (error) => {
+        console.error('Error loading accounts:', error);
+
+      }
+    });
+  }
 
   constructor(
     private billService: BillService,
     private authService: AuthService,
+    private accountService: AccountService,
     private fb: FormBuilder
   ) {
     this.paymentForm = this.fb.group({
@@ -45,6 +56,7 @@ export class BillsComponent implements OnInit {
     });
 
     this.createBillForm = this.fb.group({
+      userId: ['', Validators.required],
       biller: ['', Validators.required],
       amount: ['', [Validators.required, Validators.min(0.01)]],
       dueDate: ['', Validators.required]
@@ -61,6 +73,7 @@ export class BillsComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.getAllMyAccounts();
     this.loadUserRoleAndBills();
   }
 

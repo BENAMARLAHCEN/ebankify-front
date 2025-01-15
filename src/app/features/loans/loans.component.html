@@ -1,5 +1,4 @@
 <div class="space-y-6">
-    <!-- Loan Summary Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="bg-blue-50 rounded-lg p-6">
         <h3 class="text-blue-700 text-lg mb-2">Total Loans</h3>
@@ -21,7 +20,6 @@
       </div>
     </div>
   
-    <!-- Request Loan Button (Only for Users) -->
     <div *ngIf="userRole === 'USER'" class="flex justify-end">
       <button (click)="showLoanRequestModal = true"
               class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
@@ -29,12 +27,10 @@
       </button>
     </div>
   
-    <!-- Loans List -->
     <div class="bg-white rounded-lg shadow-sm">
       <div class="p-6">
         <h2 class="text-xl font-semibold mb-4">{{ userRole === 'USER' ? 'Your Loans' : 'All Loan Requests' }}</h2>
         
-        <!-- Filter dropdown -->
         <div class="mb-4">
           <label for="statusFilter" class="mr-2">Filter by status:</label>
           <select id="statusFilter" [(ngModel)]="filterStatus" (change)="applyFilter()"
@@ -48,12 +44,10 @@
           </select>
         </div>
         
-        <!-- Loading State -->
         <div *ngIf="isLoading" class="flex justify-center items-center py-8">
           <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
         </div>
   
-        <!-- Loans Table -->
         <div *ngIf="!isLoading" class="overflow-x-auto">
           <table class="w-full">
             <thead>
@@ -93,7 +87,6 @@
                   </span>
                 </td>
                 <td class="py-4 text-right">
-                  <!-- Admin/Employee Actions -->
                   <ng-container *ngIf="userRole !== 'USER' && loan.status === 'PENDING'">
                     <button (click)="approveLoan(loan)"
                             class="text-green-600 hover:text-green-700 mx-2">
@@ -104,7 +97,6 @@
                       <i class="fas fa-times"></i>
                     </button>
                   </ng-container>
-                  <!-- View Details -->
                   <button (click)="viewLoanDetails(loan)"
                           class="text-blue-600 hover:text-blue-700">
                     <i class="fas fa-eye"></i>
@@ -112,7 +104,6 @@
                 </td>
               </tr>
               
-              <!-- Empty State -->
               <tr *ngIf="loans.length === 0">
                 <td colspan="6" class="py-8 text-center text-gray-500">
                   No loans found
@@ -122,7 +113,6 @@
           </table>
         </div>
   
-        <!-- Pagination -->
         <div *ngIf="totalPages > 1" class="mt-6 flex justify-between items-center">
           <div class="text-sm text-gray-700">
             Showing {{ currentPage * pageSize + 1 }} to {{ getDisplayedElementsCount() }} of {{ totalElements }} loans
@@ -140,14 +130,12 @@
     </div>
   </div>
   
-  <!-- Loan Request Modal -->
   <app-loan-request-modal
     *ngIf="showLoanRequestModal"
     (close)="showLoanRequestModal = false"
     (submit)="requestLoan($event)">
   </app-loan-request-modal>
   
-  <!-- Loan Details Modal -->
   <app-loan-details-modal
     *ngIf="selectedLoan"
     [loan]="selectedLoan"
@@ -157,7 +145,6 @@
     (reject)="openRejectDialog($event)">
   </app-loan-details-modal>
   
-  <!-- Reject Loan Dialog -->
   <div *ngIf="showRejectDialog"
        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 p-6">

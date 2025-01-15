@@ -17,7 +17,7 @@ export class BillsComponent implements OnInit {
   showCreateBillForm = false;
   selectedBill: BillDTO | null = null;
   isAdminOrEmployee = false;
-  
+
   // Pagination
   currentPage = 0;
   pageSize = 10;
@@ -65,7 +65,7 @@ export class BillsComponent implements OnInit {
   }
 
   loadBills() {
-    const loadFn = this.isAdminOrEmployee 
+    const loadFn = this.isAdminOrEmployee
       ? this.billService.getAllBills(this.currentPage, this.pageSize, this.sortBy, this.sortDirection)
       : this.billService.getMyBills(this.currentPage, this.pageSize, this.sortBy, this.sortDirection);
 
@@ -78,7 +78,7 @@ export class BillsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error loading bills:', error);
-        // Handle error appropriately
+
       }
     });
   }
@@ -105,7 +105,7 @@ export class BillsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error paying bill:', error);
-          // Handle error appropriately
+
         }
       });
     }
@@ -121,7 +121,7 @@ export class BillsComponent implements OnInit {
         },
         error: (error) => {
           console.error('Error creating bill:', error);
-          // Handle error appropriately
+
         }
       });
     }

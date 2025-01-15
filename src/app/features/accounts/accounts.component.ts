@@ -1,4 +1,3 @@
-// src/app/features/accounts/accounts.component.ts
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -26,19 +25,16 @@ interface AccountFilters {
   templateUrl: './accounts.component.html',
 })
 export class AccountsComponent implements OnInit, OnDestroy {
-  // UI state
   showEditForm = false;
   showCreateForm = false;
   showDetailsModal = false;
   loading = false;
   error: string | null = null;
 
-  // Data
   accounts: BankAccountDTO[] = [];
   selectedAccount: BankAccountDTO | null = null;
   currentUser: UserResponse | null = null;
 
-  // Filters and Pagination
   filters: AccountFilters = {
     type: 'ALL',
     status: 'ALL',
@@ -52,11 +48,9 @@ export class AccountsComponent implements OnInit, OnDestroy {
   totalElements = 0;
   totalPages = 0;
 
-  // Forms
   createAccountForm!: FormGroup;
   editAccountForm!: FormGroup;
 
-  // Cleanup
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -178,9 +172,8 @@ export class AccountsComponent implements OnInit, OnDestroy {
     }
   }
 
-  // UI Event Handlers
   editAccount(account: BankAccountDTO, event: Event) {
-    event.stopPropagation(); // Prevent opening details modal
+    event.stopPropagation();
     this.selectedAccount = account;
     this.editAccountForm.patchValue({
       type: account.type,
@@ -190,7 +183,7 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   deleteAccount(id : number, event: Event) {
-    event.stopPropagation(); // Prevent opening details modal
+    event.stopPropagation();
     if (confirm('Are you sure you want to delete this account?')) {
       this.loading = true;
       this.accountService.deleteAccount(id)
@@ -252,11 +245,9 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   onTransfer(accountId: number) {
-    // Implement transfer logic or navigation
     console.log('Initiating transfer for account:', accountId);
   }
 
-  // Sorting and Filtering
   onSortChange(field: string) {
     if (this.sortBy === field) {
       this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -268,17 +259,15 @@ export class AccountsComponent implements OnInit, OnDestroy {
   }
 
   applyFilters() {
-    this.currentPage = 0; // Reset to first page when filters change
+    this.currentPage = 0; 
     this.loadAccounts();
   }
 
-  // Pagination
   onPageChange(page: number) {
     this.currentPage = page;
     this.loadAccounts();
   }
 
-  // UI Helpers
   closeEditForm() {
     this.showEditForm = false;
     this.selectedAccount = null;
@@ -313,7 +302,6 @@ export class AccountsComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Style Helpers
   getStatusClass(status: string): string {
     return status === 'ACTIVE' 
       ? 'bg-green-100 text-green-800' 

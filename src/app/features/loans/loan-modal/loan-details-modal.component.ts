@@ -11,7 +11,6 @@ import { RouterModule } from '@angular/router';
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
         <div class="p-6">
-          <!-- Header -->
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-bold text-gray-900">Loan Details</h2>
             <button (click)="close.emit()" 
@@ -23,7 +22,6 @@ import { RouterModule } from '@angular/router';
             </button>
           </div>
 
-          <!-- Loan Amount Card -->
           <div class="mb-6 p-4 bg-blue-50 rounded-lg">
             <div class="flex items-center">
               <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
@@ -38,34 +36,28 @@ import { RouterModule } from '@angular/router';
             </div>
           </div>
 
-          <!-- Loan Details Grid -->
           <div class="grid grid-cols-2 gap-6 mb-6">
-            <!-- Interest Rate -->
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm font-medium text-gray-500">Interest Rate</p>
               <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.interestRate }}%</p>
             </div>
 
-            <!-- Duration -->
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm font-medium text-gray-500">Duration</p>
               <p class="mt-1 text-lg font-semibold text-gray-900">{{ getDuration() }} months</p>
             </div>
 
-            <!-- Start Date -->
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm font-medium text-gray-500">Start Date</p>
               <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.loanStartDate | date:'mediumDate' }}</p>
             </div>
 
-            <!-- End Date -->
             <div class="bg-gray-50 p-4 rounded-lg">
               <p class="text-sm font-medium text-gray-500">End Date</p>
               <p class="mt-1 text-lg font-semibold text-gray-900">{{ loan.loanEndDate | date:'mediumDate' }}</p>
             </div>
           </div>
 
-          <!-- Status Section -->
           <div class="mb-6">
             <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
@@ -87,7 +79,6 @@ import { RouterModule } from '@angular/router';
             </div>
           </div>
 
-          <!-- Loan Purpose -->
           <div *ngIf="loan.purpose" class="mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Purpose</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
@@ -95,7 +86,6 @@ import { RouterModule } from '@angular/router';
             </div>
           </div>
 
-          <!-- Remarks -->
           <div *ngIf="loan.remarks" class="mb-6">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Remarks</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
@@ -103,7 +93,6 @@ import { RouterModule } from '@angular/router';
             </div>
           </div>
 
-          <!-- Action Buttons -->
           <div class="flex justify-end space-x-3">
             <button (click)="close.emit()" 
                     class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">

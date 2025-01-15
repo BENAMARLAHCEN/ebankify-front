@@ -23,7 +23,6 @@ import { LoanDTO } from '../../../core/services/loan.service';
           </div>
 
           <form [formGroup]="loanForm" (ngSubmit)="onSubmit()" class="space-y-6">
-            <!-- Amount -->
             <div>
               <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
                 Loan Amount
@@ -48,7 +47,6 @@ import { LoanDTO } from '../../../core/services/loan.service';
               </div>
             </div>
 
-            <!-- Duration -->
             <div>
               <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">
                 Loan Duration
@@ -71,7 +69,6 @@ import { LoanDTO } from '../../../core/services/loan.service';
               </div>
             </div>
 
-            <!-- Purpose -->
             <div>
               <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">
                 Loan Purpose
@@ -92,7 +89,6 @@ import { LoanDTO } from '../../../core/services/loan.service';
               </div>
             </div>
 
-            <!-- Terms and Interest Rate Display -->
             <div class="p-4 bg-gray-50 rounded-lg">
               <h3 class="text-sm font-medium text-gray-700 mb-2">Loan Terms</h3>
               <ul class="space-y-2 text-sm text-gray-600">
@@ -111,13 +107,11 @@ import { LoanDTO } from '../../../core/services/loan.service';
               </ul>
             </div>
 
-            <!-- Error Message -->
             <div *ngIf="errorMessage" 
                  class="p-4 bg-red-50 text-red-700 rounded-lg text-sm">
               {{ errorMessage }}
             </div>
 
-            <!-- Submit Buttons -->
             <div class="flex justify-end space-x-3">
               <button
                 type="button"

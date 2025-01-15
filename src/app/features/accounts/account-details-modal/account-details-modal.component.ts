@@ -11,7 +11,6 @@ import { Transaction, TransactionService } from '../../../core/services/transact
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl mx-4">
         <div class="p-6">
-          <!-- Header -->
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-2xl font-semibold text-gray-900">Account Details</h2>
             <button (click)="close.emit()" class="text-gray-500 hover:text-gray-700">
@@ -19,7 +18,6 @@ import { Transaction, TransactionService } from '../../../core/services/transact
             </button>
           </div>
 
-          <!-- Account Summary -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="space-y-4">
               <div>
@@ -55,28 +53,20 @@ import { Transaction, TransactionService } from '../../../core/services/transact
                 <h3 class="text-sm font-medium text-gray-500">Last Transaction</h3>
                 <p class="mt-1">{{ account.lastTransaction | date:'medium' }}</p>
               </div>
-              <!-- <div>
-                <h3 class="text-sm font-medium text-gray-500">Created On</h3>
-                <p class="mt-1">{{ account.createdAt | date:'mediumDate' }}</p>
-              </div> -->
             </div>
           </div>
 
-          <!-- Recent Transactions -->
           <div class="mb-8">
             <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Transactions</h3>
             <div class="bg-gray-50 rounded-lg p-4">
-              <!-- Loading State -->
               <div *ngIf="loading" class="flex justify-center items-center py-4">
                 <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
               </div>
 
-              <!-- Error State -->
               <div *ngIf="error" class="text-center py-4 text-red-600">
                 {{ error }}
               </div>
 
-              <!-- Transactions Table -->
               <table *ngIf="!loading && !error" class="w-full">
                 <thead>
                   <tr class="text-sm text-gray-500">
@@ -110,7 +100,6 @@ import { Transaction, TransactionService } from '../../../core/services/transact
             </div>
           </div>
 
-          <!-- Account Actions -->
           <div class="flex justify-end space-x-4">
             <button
               (click)="close.emit()"

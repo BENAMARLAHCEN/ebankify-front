@@ -32,7 +32,6 @@ interface FilterConfig {
     templateUrl: './transactions.component.html'
 })
 export class TransactionsComponent implements OnInit, OnDestroy {
-    // State management
     loading = false;
     error: string | null = null;
     userRole = 'USER';
@@ -41,17 +40,14 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     userAccounts: BankAccountDTO[] = [];
     private destroy$ = new Subject<void>();
 
-    // Forms
     transactionForm!: FormGroup;
     searchControl = new FormControl('');
     dateRangeForm!: FormGroup;
 
-    // Pagination
     currentPage = 0;
     pageSize = 10;
     totalTransactions = 0;
 
-    // Sorting and Filtering
     sortConfig: SortConfig = {
         field: 'timestamp',
         direction: 'desc'
@@ -94,7 +90,6 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     }
 
     private initializeForms() {
-        // Initialize transaction form
         this.transactionForm = this.fb.group({
             fromAccountId: ['', Validators.required],
             toAccountId: ['', Validators.required],
@@ -105,13 +100,12 @@ export class TransactionsComponent implements OnInit, OnDestroy {
             endDate: ['']
         });
 
-        // Add dynamic validators for recurring transactions
         this.transactionForm.get('frequency')?.valueChanges
             .pipe(takeUntil(this.destroy$))
             .subscribe(frequency => {
                 const startDateControl = this.transactionForm.get('startDate');
                 const endDateControl = this.transactionForm.get('endDate');
-                
+
                 if (frequency !== 'ONE_TIME') {
                     startDateControl?.setValidators([Validators.required]);
                     endDateControl?.setValidators([Validators.required]);
@@ -119,12 +113,11 @@ export class TransactionsComponent implements OnInit, OnDestroy {
                     startDateControl?.clearValidators();
                     endDateControl?.clearValidators();
                 }
-                
+
                 startDateControl?.updateValueAndValidity();
                 endDateControl?.updateValueAndValidity();
             });
 
-        // Initialize date range form
         this.dateRangeForm = this.fb.group({
             start: [''],
             end: ['']
@@ -179,7 +172,6 @@ export class TransactionsComponent implements OnInit, OnDestroy {
     }
 
     private setupSubscriptions() {
-        // Search debounce
         this.searchControl.valueChanges
             .pipe(
                 takeUntil(this.destroy$),
@@ -187,7 +179,6 @@ export class TransactionsComponent implements OnInit, OnDestroy {
             )
             .subscribe(() => this.loadTransactions());
 
-        // Date range changes
         this.dateRangeForm.valueChanges
             .pipe(takeUntil(this.destroy$))
             .subscribe(() => this.loadTransactions());
@@ -197,7 +188,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         this.loading = true;
         this.error = null;
 
-        const observable = this.userRole === 'USER' 
+        const observable = this.userRole === 'USER'
             ? this.transactionService.getMyTransactions()
             : this.transactionService.getAllTransactions();
 
@@ -220,8 +211,7 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         if (this.transactionForm.valid) {
             this.loading = true;
             const formData = this.transactionForm.value;
-            
-            // Format dates if they exist
+
             if (formData.startDate) {
                 formData.startDate = new Date(formData.startDate).toISOString();
             }
@@ -291,7 +281,6 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         this.totalTransactions = response.totalElements;
     }
 
-    // UI Helpers
     viewTransactionDetails(transaction: Transaction) {
         this.selectedTransaction = transaction;
     }
@@ -340,13 +329,12 @@ export class TransactionsComponent implements OnInit, OnDestroy {
         if (totalPages <= 5) {
             return Array.from({ length: totalPages }, (_, i) => i);
         }
-        
+
         const startPage = Math.max(0, this.currentPage - 2);
         const endPage = Math.min(totalPages - 1, this.currentPage + 2);
         return Array.from({ length: endPage - startPage + 1 }, (_, i) => startPage + i);
     }
 
-    // Statistics
     get pendingCount(): number {
         return this.pagedTransactions.content.filter(t => t.status === 'PENDING').length;
     }

@@ -2,7 +2,6 @@
   <div class="w-full max-w-md p-8 bg-white shadow-lg rounded-lg mt-10">
     <h2 class="mb-6 text-2xl font-bold text-center text-gray-700">Login</h2>
 
-    <!-- Error Alert -->
     <div *ngIf="errorMessage" 
          class="mb-6 bg-red-50 border-l-4 border-red-500 p-4">
       <div class="flex">
@@ -16,7 +15,6 @@
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-      <!-- Username Field -->
       <div class="mb-4">
         <label for="username" class="block mb-2 text-sm font-medium text-gray-600">
           Username
@@ -35,7 +33,6 @@
         </div>
       </div>
 
-      <!-- Password Field -->
       <div class="mb-6">
         <label for="password" class="block mb-2 text-sm font-medium text-gray-600">
           Password
@@ -63,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Submit Button -->
       <button
         type="submit"
         [disabled]="loginForm.invalid || loading"
@@ -80,7 +76,6 @@
       </button>
     </form>
 
-    <!-- Registration Link -->
     <div class="mt-4 text-center">
       <a routerLink="/auth/register" class="text-sm text-blue-600 hover:underline">
         Don't have an account? Register here

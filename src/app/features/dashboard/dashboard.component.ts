@@ -1,4 +1,3 @@
-// src/app/features/dashboard/dashboard.component.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
@@ -27,7 +26,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   constructor(
     private authService: AuthService,
     private dashboardService: DashboardService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadUserAndData();

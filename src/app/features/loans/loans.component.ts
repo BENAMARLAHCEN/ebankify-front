@@ -19,28 +19,23 @@ import { AuthService } from '../../auth/auth.service';
     templateUrl: './loans.component.html'
 })
 export class LoansComponent implements OnInit {
-    // Data
     loans: LoanDTO[] = [];
     userRole = 'USER';
     isLoading = false;
 
-    // Modal states
     showLoanRequestModal = false;
     showRejectDialog = false;
     selectedLoan: LoanDTO | null = null;
 
-    // Filters and sorting
     filterStatus: 'ALL' | LoanDTO['status'] = 'ALL';
     sortColumn: string = 'loanStartDate';
     sortDirection: 'asc' | 'desc' = 'desc';
-    
-    // Pagination
+
     currentPage = 0;
     pageSize = 10;
     totalElements = 0;
     totalPages = 0;
 
-    // Forms
     rejectForm: FormGroup;
 
     constructor(
@@ -64,7 +59,7 @@ export class LoansComponent implements OnInit {
 
     loadLoans() {
         this.isLoading = true;
-        const loadFn = this.userRole === 'USER' 
+        const loadFn = this.userRole === 'USER'
             ? this.loanService.getUserLoans(this.currentPage, this.pageSize, this.sortColumn, this.sortDirection)
             : this.loanService.getAllLoans(this.currentPage, this.pageSize, this.sortColumn, this.sortDirection);
 

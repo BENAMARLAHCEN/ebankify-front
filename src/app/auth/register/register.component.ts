@@ -16,7 +16,7 @@ export class RegisterComponent {
   maxDate = new Date();
 
   constructor(
-    private authService: AuthService, 
+    private authService: AuthService,
     private router: Router,
     private fb: FormBuilder
   ) {
@@ -128,7 +128,7 @@ export class RegisterComponent {
       const today = new Date();
       let age = today.getFullYear() - birthday.getFullYear();
       const monthDiff = today.getMonth() - birthday.getMonth();
-      
+
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthday.getDate())) {
         age--;
       }

@@ -10,7 +10,6 @@ import { AuthService } from '../../../auth/auth.service';
   imports: [CommonModule, RouterModule],
   template: `
     <div class="flex min-h-screen bg-gray-100">
-      <!-- Sidebar -->
       <div [class]="'fixed lg:static  bg-white shadow-lg transition-transform duration-300 ease-in-out w-64 z-30 ' + 
         (isSidebarOpen ? 'translate-x-0 ' : '-translate-x-full') + 
         ' lg:translate-x-0'">
@@ -43,16 +42,13 @@ import { AuthService } from '../../../auth/auth.service';
         </nav>
       </div>
 
-      <!-- Main Content Area -->
       <div class="flex-1 ">
-        <!-- Mobile Header -->
         <div class="lg:hidden bg-white shadow-sm py-4 px-6">
           <button (click)="toggleSidebar()" class="text-gray-500 hover:text-gray-700">
             <i class="fas fa-bars text-xl"></i>
           </button>
         </div>
 
-        <!-- Page Content -->
         <div class="p-6">
           <router-outlet></router-outlet>
         </div>
@@ -75,7 +71,7 @@ export class DashboardLayoutComponent {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;

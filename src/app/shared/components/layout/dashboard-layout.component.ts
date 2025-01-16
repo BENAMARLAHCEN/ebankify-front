@@ -59,22 +59,52 @@ import { AuthService } from '../../../auth/auth.service';
 export class DashboardLayoutComponent {
   isSidebarOpen = true;
 
+  role = '';
+
   menuItems = [
     { icon: 'fas fa-home', label: 'Dashboard', link: '/dashboard' },
     { icon: 'fas fa-credit-card', label: 'Accounts', link: '/accounts' },
     { icon: 'fas fa-history', label: 'Transactions', link: '/transactions' },
     { icon: 'fas fa-file-invoice', label: 'Bills', link: '/bills' },
     { icon: 'fas fa-file-contract', label: 'Loans', link: '/loans' },
-    { icon: 'fas fa-user', label: 'Profile', link: '/profile' }
+    { icon: 'fas fa-user', label: 'Profile', link: '/profile' },
+    { icon: 'fas fa-users', label: 'Users', link: '/users' , role: 'admin'}
   ];
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) { }
+  ) { 
+    this.getRole();
+  }
 
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  getRole() {
+    this.authService.getCurrentUser().subscribe({
+      next: (user) => {
+        if (user) {
+          this.role = user.role;
+        }
+      },
+      error: (error) => {
+        console.error('Error getting user role:', error);
+      },
+      complete: () => {
+        this.menuItemsForRole();
+      }
+
+    });
+  }
+
+  menuItemsForRole() {
+    if (this.role === 'admin') {
+      this.menuItems = this.menuItems;
+    }else {
+      this.menuItems = this.menuItems.filter((item) => item.role !== 'admin');
+    }
   }
 
   logout() {

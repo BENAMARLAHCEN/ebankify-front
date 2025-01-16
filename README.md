@@ -61,7 +61,7 @@ npm -v      # v9 or higher
 
 1️⃣ Clone the repository
 ```bash
-git clone https://github.com/yourusername/bank-management.git
+git clone https://github.com/BENAMARLAHCEN/ebankify-front.git
 cd bank-management
 ```
 
@@ -151,17 +151,12 @@ RESTful endpoints available at:
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## 🌟 Acknowledgments
-
-- Angular Team for the amazing framework
-- TailwindCSS for the beautiful styling
-- Our amazing contributors
 
 ---
 
 <div align="center">
 
-Made with ❤️ by Your Team
+Made with ❤️ by LAHCEN
 
 [⬆ back to top](#modern-bank-management-system)
 

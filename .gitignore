@@ -43,3 +43,5 @@ Thumbs.db
 
 
 /src/environments/environment.ts
+/cypress/videos
+/cypress/screenshots

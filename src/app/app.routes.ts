@@ -53,10 +53,13 @@ export const routes: Routes = [
                     .then(m => m.UserManagementComponent),
                 canActivate: [RoleGuard],
                 data: { roles: ['ADMIN'] }
-            }
+            },
+            {
+                path: 'transaction-rx',
+                loadComponent: () => import('./features/transaction-rx/components/transaction-cart.component')
+                  .then(m => m.TransactionCartComponent),
+                canActivate: [AuthGuard]
+              }
         ]
     },
-
-
-
 ];

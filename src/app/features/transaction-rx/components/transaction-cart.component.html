@@ -1,0 +1,138 @@
+<div class="space-y-6">
+    <!-- Cart Summary -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <!-- Total Cart Value -->
+      <div class="bg-blue-50 rounded-lg p-6">
+        <h3 class="text-blue-700 text-lg mb-2">Total Value</h3>
+        <p class="text-blue-700 text-3xl font-bold">
+          {{ cartTotal$ | async | currency }}
+        </p>
+      </div>
+      
+      <!-- Transaction Count -->
+      <div class="bg-green-50 rounded-lg p-6">
+        <h3 class="text-green-700 text-lg mb-2">Transactions</h3>
+        <p class="text-green-700 text-3xl font-bold">
+          {{ (transactions$ | async)?.length || 0 }}
+        </p>
+        <p class="text-green-600 text-sm mt-2">
+          {{ 10 - ((transactions$ | async)?.length || 0) }} slots remaining
+        </p>
+      </div>
+
+      <!-- Processing Status -->
+      <div class="bg-purple-50 rounded-lg p-6">
+        <h3 class="text-purple-700 text-lg mb-2">Status</h3>
+        <p class="text-purple-700 text-3xl font-bold">
+          {{ processingStatus }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="bg-white rounded-lg shadow-sm p-6">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-semibold">Transaction Cart</h2>
+        <div class="flex space-x-2">
+          <button (click)="addTransaction()"
+                  [disabled]="(transactions$ | async)?.length === 10"
+                  class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            Add Transaction
+          </button>
+          <button (click)="resetCart()"
+                  [disabled]="!(transactions$ | async)?.length"
+                  class="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            Reset Cart
+          </button>
+          <button *ngIf="(transactions$ | async)?.length"
+                  (click)="processAllTransactions()"
+                  [disabled]="processing"
+                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+            <span *ngIf="!processing">Process All</span>
+            <span *ngIf="processing" class="flex items-center">
+              <div class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
+              Processing...
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="error$ | async as error" 
+           class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-lg">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm">{{ error }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction List -->
+      <div class="space-y-4">
+        <div *ngFor="let transaction of transactions$ | async; let i = index"
+             class="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+             [class.border-blue-200]="i === selectedIndex">
+          <div class="flex justify-between items-center">
+            <div>
+              <p class="font-medium">{{ transaction.type }}</p>
+              <p class="text-sm text-gray-600">
+                From: {{ transaction.fromAccountId }} → To: {{ transaction.toAccountId }}
+              </p>
+              <div class="mt-1 space-x-2">
+                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">
+                  {{ transaction.frequency }}
+                </span>
+                <span *ngIf="transaction.startDate && transaction.endDate" 
+                      class="text-xs text-gray-500">
+                  {{ transaction.startDate | date }} - {{ transaction.endDate | date }}
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-4">
+              <span class="text-lg font-semibold">
+                {{ transaction.amount | currency }}
+              </span>
+              <div class="flex space-x-2">
+                <button (click)="editTransaction(transaction, i)"
+                        class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button (click)="removeTransaction(transaction.id)"
+                        class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!(transactions$ | async)?.length"
+             class="text-center py-12">
+          <div class="mb-4">
+            <i class="fas fa-shopping-cart text-4xl text-gray-300"></i>
+          </div>
+          <h3 class="text-lg font-medium text-gray-900">Your cart is empty</h3>
+          <p class="mt-1 text-sm text-gray-500">
+            Start by adding some transactions to your cart
+          </p>
+          <button (click)="addTransaction()"
+                  class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Add First Transaction
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit/Add Modal -->
+  <app-transaction-edit-modal
+    *ngIf="showEditModal"
+    [transaction]="selectedTransaction"
+    [isEdit]="!!selectedTransaction"
+    (save)="onSaveTransaction($event)"
+    (close)="closeModal()">
+  </app-transaction-edit-modal>

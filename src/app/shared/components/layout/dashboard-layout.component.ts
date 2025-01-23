@@ -64,6 +64,7 @@ export class DashboardLayoutComponent {
   menuItems = [
     { icon: 'fas fa-home', label: 'Dashboard', link: '/dashboard' },
     { icon: 'fas fa-credit-card', label: 'Accounts', link: '/accounts' },
+    { icon: 'fas fa-shopping-cart', label: 'Transaction Cart', link: '/transaction-rx' },
     { icon: 'fas fa-history', label: 'Transactions', link: '/transactions' },
     { icon: 'fas fa-file-invoice', label: 'Bills', link: '/bills' },
     { icon: 'fas fa-file-contract', label: 'Loans', link: '/loans' },
